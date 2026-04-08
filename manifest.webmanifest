@@ -1,0 +1,26 @@
+{
+  "name": "Sim Life · ชีวิตในเกม",
+  "short_name": "Sim Life",
+  "description": "ระบบติดตามชีวิต 6 เดือน · งานประจำ + สอบกฎหมาย + Content Creator",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "lang": "th",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

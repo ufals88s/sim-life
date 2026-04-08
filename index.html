@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
+<meta name="theme-color" content="#0b1020"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Sim Life"/>
+<link rel="manifest" href="manifest.webmanifest"/>
+<link rel="apple-touch-icon" href="icon.png"/>
+<title>Sim Life · ชีวิตในเกม</title>
+<style>
+:root{
+  --bg:#0b1020; --bg2:#121a35; --card:#162043; --line:#26315c;
+  --text:#e8ecff; --mute:#9aa6d6;
+  --cyan:#5cf2c8; --blue:#7aa2ff; --gold:#ffd166; --pink:#ff7ab6;
+  --red:#ff6b6b; --green:#51e08a; --purple:#b47bff;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;overscroll-behavior:none}
+body{
+  background:radial-gradient(800px 600px at 50% -10%,#1a2660 0,transparent 60%),
+             radial-gradient(600px 500px at 100% 20%,#23145a 0,transparent 55%),var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans Thai',sans-serif;
+  font-size:15px;line-height:1.5;
+  min-height:100vh;
+  padding-top:var(--safe-top);
+  padding-bottom:calc(78px + var(--safe-bot));
+}
+.app{max-width:540px;margin:0 auto;padding:16px 16px 20px}
+
+/* ===== HEADER ===== */
+.hdr{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.avatar{
+  width:56px;height:56px;border-radius:18px;
+  background:linear-gradient(135deg,#5cf2c8,#7aa2ff);
+  display:grid;place-items:center;font-size:28px;
+  box-shadow:0 8px 24px rgba(92,242,200,.25);
+  position:relative;
+}
+.avatar .lvl{
+  position:absolute;bottom:-4px;right:-4px;
+  background:var(--gold);color:#0b1020;
+  font-size:10px;font-weight:800;
+  border-radius:999px;padding:2px 6px;
+  border:2px solid var(--bg);
+}
+.hdr h1{margin:0;font-size:18px;font-weight:700}
+.hdr .sub{color:var(--mute);font-size:12px}
+.hdr .streak{margin-left:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;text-align:center}
+.hdr .streak .n{font-size:18px;font-weight:800;color:var(--gold)}
+.hdr .streak .l{font-size:10px;color:var(--mute)}
+
+/* ===== CARDS ===== */
+.card{
+  background:linear-gradient(180deg,var(--card),var(--bg2));
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:14px;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
+}
+.card h3{margin:0 0 12px;font-size:14px;display:flex;align-items:center;gap:8px}
+.card h3 .ic{font-size:16px}
+.mute{color:var(--mute);font-size:12px}
+
+/* ===== POWER GAUGE (big circle) ===== */
+.power{display:flex;align-items:center;gap:14px}
+.ring{position:relative;width:110px;height:110px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .pt{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .pt .n{font-size:26px;font-weight:800;background:linear-gradient(135deg,#5cf2c8,#7aa2ff);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+.ring .pt .l{font-size:9px;color:var(--mute);letter-spacing:1px;margin-top:2px}
+.power .info{flex:1;min-width:0}
+.power .info .goal{font-size:12px;color:var(--mute)}
+.power .info .big{font-size:22px;font-weight:800;background:linear-gradient(135deg,#ffd166,#ff7ab6);-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:2px}
+.power .info .bar{margin-top:8px}
+
+/* ===== STAT BARS ===== */
+.bar{height:8px;background:#0e1530;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+.bar>span{display:block;height:100%;border-radius:999px;transition:width .5s;background:linear-gradient(90deg,var(--cyan),var(--blue))}
+.bar.gold>span{background:linear-gradient(90deg,#ffd166,#ff7ab6)}
+.bar.red>span{background:linear-gradient(90deg,#ff6b6b,#ffd166)}
+.bar.green>span{background:linear-gradient(90deg,#51e08a,#5cf2c8)}
+.bar.purple>span{background:linear-gradient(90deg,#b47bff,#7aa2ff)}
+
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#0e1530;border:1px solid var(--line);border-radius:14px;padding:10px}
+.stat .r{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.stat .r b{color:var(--text);font-size:13px}
+.stat .r .v{color:var(--mute)}
+.stat .btns{display:flex;gap:4px;margin-top:8px}
+.stat .btns button{
+  flex:1;background:var(--bg2);color:var(--text);border:1px solid var(--line);
+  border-radius:10px;padding:6px 0;font-size:11px;font-weight:600;cursor:pointer;
+}
+.stat .btns button:active{transform:scale(.96);background:var(--line)}
+
+/* ===== BUTTONS ===== */
+.btn{
+  background:var(--bg2);color:var(--text);border:1px solid var(--line);
+  border-radius:12px;padding:10px 14px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+  display:inline-flex;align-items:center;gap:6px;justify-content:center;
+}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:linear-gradient(135deg,#5cf2c8,#7aa2ff);color:#0b1020;border:none}
+.btn.warn{background:#2a0f17;color:#ff9aa9;border-color:#5a2330}
+.btn.full{width:100%}
+.btn.lg{padding:14px;font-size:14px}
+
+/* ===== QUEST ITEM ===== */
+.quest{
+  display:flex;align-items:center;gap:12px;
+  padding:12px;border:1px solid var(--line);
+  border-radius:14px;margin-bottom:8px;background:#0e1530;
+  transition:all .2s;
+}
+.quest.done{opacity:.55;background:#0a1024}
+.quest .box{
+  width:26px;height:26px;border-radius:8px;border:2px solid var(--line);
+  display:grid;place-items:center;flex:none;font-size:16px;color:var(--cyan);
+  transition:all .2s;
+}
+.quest.done .box{background:var(--cyan);border-color:var(--cyan);color:#0b1020}
+.quest .txt{flex:1;font-size:13px}
+.quest.done .txt{text-decoration:line-through;color:var(--mute)}
+.quest .xp{font-size:11px;color:var(--gold);font-weight:700;flex:none}
+
+/* ===== INPUTS ===== */
+input[type=text],input[type=number],input[type=date],input[type=time],select,textarea{
+  background:#0e1530;border:1px solid var(--line);border-radius:12px;
+  padding:12px;color:var(--text);width:100%;font-family:inherit;font-size:14px;
+  -webkit-appearance:none;
+}
+input:focus,select:focus{outline:none;border-color:var(--cyan)}
+label{font-size:12px;color:var(--mute);display:block;margin:12px 0 6px;font-weight:600}
+
+/* ===== TABLE LIST ===== */
+.list .item{
+  display:flex;align-items:center;gap:10px;
+  padding:12px;border:1px solid var(--line);
+  border-radius:12px;margin-bottom:8px;background:#0e1530;
+}
+.list .item .ico{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:16px;background:var(--bg2);flex:none}
+.list .item .main{flex:1;min-width:0}
+.list .item .main .t{font-size:13px;font-weight:600}
+.list .item .main .s{font-size:11px;color:var(--mute)}
+.list .item .amt{font-weight:800;color:var(--green);font-size:14px}
+.list .item .x{color:#ff9aa9;background:none;border:none;font-size:18px;padding:4px 8px;cursor:pointer}
+
+/* ===== TAG / CHIP ===== */
+.chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:10px;border:1px solid var(--line);background:#0e1530;color:var(--mute)}
+.chip.work{color:var(--blue);border-color:#27407a}
+.chip.law{color:var(--gold);border-color:#5a4317}
+.chip.content{color:var(--pink);border-color:#5a2545}
+.chip.life{color:var(--cyan);border-color:#1a4a3d}
+
+/* ===== BOTTOM NAV ===== */
+.nav{
+  position:fixed;left:0;right:0;bottom:0;
+  padding:10px 10px calc(10px + var(--safe-bot));
+  background:rgba(11,16,32,.92);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-top:1px solid var(--line);
+  display:flex;justify-content:space-around;
+  z-index:100;
+}
+.nav .tab{
+  flex:1;background:none;border:none;color:var(--mute);
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:8px 4px;font-size:10px;font-family:inherit;cursor:pointer;
+  border-radius:12px;
+}
+.nav .tab .i{font-size:22px;line-height:1}
+.nav .tab.active{color:var(--cyan)}
+.nav .tab.active .i{filter:drop-shadow(0 0 8px rgba(92,242,200,.6))}
+
+/* ===== SCREENS ===== */
+.screen{display:none;animation:fade .25s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ===== POMODORO ===== */
+.pomo{text-align:center;padding:20px 0}
+.pomo .time{font-size:52px;font-weight:800;font-variant-numeric:tabular-nums;background:linear-gradient(135deg,#5cf2c8,#b47bff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pomo .state{color:var(--mute);font-size:12px;letter-spacing:2px;text-transform:uppercase}
+.pomo .ctrls{display:flex;gap:8px;justify-content:center;margin-top:14px}
+
+/* ===== MODAL / TOAST ===== */
+.toast{
+  position:fixed;top:calc(var(--safe-top) + 20px);left:50%;transform:translateX(-50%);
+  background:var(--card);border:1px solid var(--cyan);
+  border-radius:14px;padding:12px 18px;font-size:13px;
+  box-shadow:0 10px 30px rgba(92,242,200,.2);
+  opacity:0;pointer-events:none;transition:all .3s;z-index:200;
+  max-width:90%;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* misc */
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.gap{margin-top:14px}
+.center{text-align:center}
+h2{font-size:20px;margin:0 0 4px}
+details summary{cursor:pointer;color:var(--blue);font-size:13px;padding:8px 0}
+details[open] summary{color:var(--cyan)}
+.install-hint{
+  background:linear-gradient(135deg,rgba(92,242,200,.1),rgba(122,162,255,.1));
+  border:1px dashed var(--cyan);border-radius:14px;padding:12px;margin-bottom:14px;
+  font-size:12px;color:var(--mute);
+}
+.install-hint b{color:var(--cyan)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ============ HEADER (visible on all tabs) ============ -->
+<div class="hdr">
+  <div class="avatar">🎮<div class="lvl" id="lvlBadge">1</div></div>
+  <div style="min-width:0">
+    <h1 id="hiName">Hi, panida</h1>
+    <div class="sub" id="hiDate">—</div>
+  </div>
+  <div class="streak">
+    <div class="n" id="streakN">0</div>
+    <div class="l">🔥 STREAK</div>
+  </div>
+</div>
+
+<!-- ============ HOME SCREEN ============ -->
+<div class="screen active" id="s-home">
+
+  <div id="installHint" class="install-hint" style="display:none">
+    📱 <b>ติดตั้งเป็นแอปมือถือ</b>: Safari iOS กด <b>Share → Add to Home Screen</b> · Chrome Android กด <b>⋮ → Install app</b>
+    <div style="margin-top:6px"><button class="btn" onclick="document.getElementById('installHint').style.display='none'">เข้าใจแล้ว</button></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">⚡</span> พลังชีวิตรวม (Power Score)</h3>
+    <div class="power">
+      <div class="ring">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="48" stroke="#1a2550" stroke-width="10" fill="none"/>
+          <circle id="ringFg" cx="55" cy="55" r="48" stroke="url(#grad)" stroke-width="10" fill="none"
+                  stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="301.6"/>
+          <defs><linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#5cf2c8"/><stop offset="100%" stop-color="#7aa2ff"/>
+          </linearGradient></defs>
+        </svg>
+        <div class="pt"><div><div class="n" id="powerN">0</div><div class="l">POWER</div></div></div>
+      </div>
+      <div class="info">
+        <div class="goal">💰 รายได้เสริม → 500,000 ฿</div>
+        <div class="big" id="incomeBig">฿0</div>
+        <div class="bar gold" style="margin-top:6px"><span id="incomeBarHome" style="width:0%"></span></div>
+        <div class="mute" style="margin-top:6px">⚖️ สอบกฎหมายอีก <b id="lawDaysHome" style="color:var(--gold)">—</b> วัน</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">🧬</span> Sim Needs (ค่าพลัง)</h3>
+    <div class="mute" style="margin-bottom:10px">ลดอัตโนมัติทุกชั่วโมง · แตะเพื่อเติม</div>
+    <div class="stats-grid" id="statsGrid"></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">🎯</span> วันนี้ต้องทำ</h3>
+    <div class="row mute"><span>Quest สำเร็จ</span><span id="todayDone">0/0</span></div>
+    <div class="bar green gap"><span id="todayBar" style="width:0%"></span></div>
+    <button class="btn primary full lg gap" onclick="go('quests')">▶ เริ่ม Quest วันนี้</button>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">🏆</span> Skill Tree</h3>
+    <div id="skillTree"></div>
+  </div>
+</div>
+
+<!-- ============ QUESTS SCREEN ============ -->
+<div class="screen" id="s-quests">
+  <h2>Daily Quests</h2>
+  <div class="mute">เคลียร์ครบ +50 bonus XP · รีเซ็ตเที่ยงคืน</div>
+  <div class="card gap">
+    <div id="questList"></div>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button class="btn primary" style="flex:1" onclick="completeAllQuests()">✓ ทั้งหมด</button>
+      <button class="btn" onclick="resetQuests()">↻ รีเซ็ต</button>
+    </div>
+  </div>
+
+  <h2 class="gap">Weekly Quests</h2>
+  <div class="card">
+    <div id="weeklyList"></div>
+  </div>
+
+  <h2 class="gap">⚖️ Exam Crunch Mode · 3 เดือนแรก (นอน 5 ชม.)</h2>
+  <div class="card">
+    <div id="routine"></div>
+  </div>
+</div>
+
+<!-- ============ INCOME SCREEN ============ -->
+<div class="screen" id="s-income">
+  <h2>รายได้</h2>
+  <div class="mute">Target ฿500,000 · ติดตามทุกช่องทาง</div>
+
+  <div class="card gap center">
+    <div class="mute">รวมทั้งหมด</div>
+    <div style="font-size:38px;font-weight:800;background:linear-gradient(135deg,#ffd166,#ff7ab6);-webkit-background-clip:text;background-clip:text;color:transparent" id="incomeTotal">฿0</div>
+    <div class="bar gold gap"><span id="incomeBarI" style="width:0%"></span></div>
+    <div class="mute gap" id="incomePct">0% ของเป้าหมาย</div>
+    <div class="row gap">
+      <div><div class="mute" style="font-size:10px">เดือนนี้</div><div style="font-weight:800;color:var(--green)" id="incomeMonthI">฿0</div></div>
+      <div><div class="mute" style="font-size:10px">ต้องเหลือ/เดือน</div><div style="font-weight:800;color:var(--gold)" id="incomeNeed">฿0</div></div>
+      <div><div class="mute" style="font-size:10px">วันนี้</div><div style="font-weight:800;color:var(--cyan)" id="incomeToday">฿0</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">➕</span> เพิ่มรายได้</h3>
+    <label>ช่องทาง</label>
+    <select id="incomeSrc">
+      <option>🛒 TikTok Shop Affiliate</option>
+      <option>🤖 AI Freelance</option>
+      <option>▶️ YouTube Automation</option>
+      <option>📱 FB Reels + IG Bonus</option>
+      <option>📦 AI Digital Product</option>
+      <option>📲 AdMob App</option>
+      <option>💼 อื่นๆ</option>
+    </select>
+    <label>จำนวน (฿)</label>
+    <input type="number" id="incomeAmt" inputmode="numeric" placeholder="0"/>
+    <button class="btn primary full lg gap" onclick="addIncome()">+ บันทึกรายได้</button>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">📋</span> ประวัติล่าสุด</h3>
+    <div class="list" id="incomeList"></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">💎</span> 500K Money Machine · 6 Streams</h3>
+    <div class="mute" style="font-size:11px">เป้าหมายรวมจาก 6 ช่องทาง = ฿500,000 ใน 6 เดือน</div>
+    <div id="streamsList" class="gap"></div>
+    <div class="mute gap" style="font-size:11px">Sprint Week: <b id="sprintWk" style="color:var(--gold)">1</b> / 26 · เหลือ <b id="sprintLeft" style="color:var(--cyan)">26</b> สัปดาห์</div>
+    <div class="bar gold gap"><span id="sprintBar" style="width:0%"></span></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">🚀</span> Quick Add Income</h3>
+    <div class="mute" style="font-size:11px">แตะปุ่มเพื่อเพิ่ม +500฿ ในแต่ละ stream อย่างรวดเร็ว</div>
+    <div id="quickAdd" class="gap" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">📚</span> เอกสาร Money Machine</h3>
+    <div class="mute" style="font-size:11px">ไฟล์ระบบทั้งหมดในโฟลเดอร์ "The Sim"</div>
+    <div class="list gap" style="font-size:13px;line-height:2">
+      📊 <b>500K-Money-Machine.xlsx</b> · Financial model 8 sheets<br>
+      💡 <b>Content-Idea-Bank-100.xlsx</b> · 100 หัวข้อคลิป<br>
+      📖 <b>SOP-AI-Content-Production.docx</b> · ขั้นตอน batch ผลิตคอนเทนต์<br>
+      📦 <b>Prompt-Pack-v1-PRODUCT.docx</b> · Digital product แรก (50 prompts)<br>
+      🚀 <b>Prompt-Pack-Launch-Plan-7Days.docx</b> · แผน launch 7 วัน
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">🎬</span> Content Pipeline</h3>
+    <label>หัวข้อคลิป</label>
+    <input type="text" id="cTopic" placeholder="เช่น รีวิวครีม TikTok Shop"/>
+    <label>สถานะ</label>
+    <select id="cStatus"><option>idea</option><option>script</option><option>shoot</option><option>edit</option><option>posted</option></select>
+    <button class="btn primary full gap" onclick="addContent()">+ เพิ่มคลิป</button>
+    <div class="mute gap">โพสต์เดือนนี้: <b id="postCount" style="color:var(--text)">0</b> / 30</div>
+    <div class="list gap" id="contentList"></div>
+  </div>
+</div>
+
+<!-- ============ STUDY SCREEN ============ -->
+<div class="screen" id="s-study">
+  <h2>Law Exam Mode</h2>
+  <div class="mute">เหลืออีก <b id="lawDaysS" style="color:var(--gold)">—</b> วัน</div>
+
+  <div class="card gap">
+    <h3><span class="ic">⏱️</span> Pomodoro Timer</h3>
+    <div class="pomo">
+      <div class="state" id="pomoState">FOCUS · 25 MIN</div>
+      <div class="time" id="pomoTime">25:00</div>
+      <div class="ctrls">
+        <button class="btn primary lg" id="pomoBtn" onclick="togglePomo()">▶ Start</button>
+        <button class="btn lg" onclick="resetPomo()">↻</button>
+      </div>
+      <div class="mute gap">รอบที่ <b id="pomoRound" style="color:var(--text)">0</b> · 4 รอบ = พักใหญ่ 15 นาที</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">📅</span> แผน 12 สัปดาห์</h3>
+    <div id="lawPlan"></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">📚</span> Study Log</h3>
+    <label>วิชา/หัวข้อ</label>
+    <input type="text" id="studyTopic" placeholder="เช่น ประมวลแพ่ง-หนี้"/>
+    <label>นาทีที่อ่าน</label>
+    <input type="number" id="studyMins" inputmode="numeric" placeholder="30"/>
+    <button class="btn primary full gap" onclick="addStudy()">+ บันทึก</button>
+    <div class="mute gap">รวมสัปดาห์นี้: <b id="studyWk" style="color:var(--text)">0</b> นาที</div>
+    <div class="list gap" id="studyList"></div>
+  </div>
+</div>
+
+<!-- ============ PROFILE / SETTINGS SCREEN ============ -->
+<div class="screen" id="s-me">
+  <h2>Profile</h2>
+  <div class="mute">ตั้งค่าระบบและแจ้งเตือน</div>
+
+  <div class="card gap center">
+    <div class="avatar" style="margin:0 auto;width:72px;height:72px;font-size:36px">🎮<div class="lvl" id="lvlBadge2">1</div></div>
+    <div style="font-size:18px;font-weight:800;margin-top:8px" id="meLvl">Level 1 · Newbie</div>
+    <div class="mute">XP <b id="meXp" style="color:var(--gold)">0</b> · Next Lv <b id="meNext" style="color:var(--text)">100</b></div>
+    <div class="bar purple gap"><span id="xpBar" style="width:0%"></span></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">🔔</span> ระบบแจ้งเตือน</h3>
+    <label>📧 Email</label>
+    <input type="text" id="cfgEmail" placeholder="ufals88s@gmail.com"/>
+    <label>💬 LINE Notify Token</label>
+    <input type="text" id="cfgLine" placeholder="จาก notify-bot.line.me"/>
+    <label>🔗 Webhook URL (Make/Zapier/n8n)</label>
+    <input type="text" id="cfgHook" placeholder="https://hook.make.com/..."/>
+    <label>⏰ เวลาส่ง daily summary</label>
+    <input type="time" id="cfgTime" value="22:30"/>
+    <button class="btn primary full gap" onclick="saveCfg()">💾 บันทึก</button>
+    <button class="btn full gap" onclick="testNotify()">🔔 ทดสอบแจ้งเตือน</button>
+    <button class="btn full gap" onclick="requestNotif()">📲 ขออนุญาต Push บนมือถือ</button>
+
+    <details class="gap">
+      <summary>📘 วิธีตั้ง LINE Notify / Webhook</summary>
+      <div class="mute" style="font-size:12px;line-height:1.7">
+        <b>LINE Notify:</b> ไปที่ notify-bot.line.me → My page → Generate token → เลือก group หรือ 1-on-1 → Copy มาวางช่องด้านบน<br><br>
+        <b>Webhook (ฟรีตลอด):</b><br>
+        1. สมัคร <b>Make.com</b> → New scenario<br>
+        2. เลือก Webhooks → Custom webhook → Copy URL<br>
+        3. เชื่อม Gmail หรือ LINE module ต่อ<br>
+        4. วาง URL ในช่อง Webhook ด้านบน<br><br>
+        <b>ทำงาน 24 ชม.:</b> แอปนี้ต้องเปิดค้างเพื่อส่งสรุปตอน 22:30 · ถ้าอยาก 24/7 ให้สร้าง Make scenario ตั้ง Schedule ทุกวัน
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">⚙️</span> ตั้งค่าเป้าหมาย</h3>
+    <label>วันเริ่ม Challenge</label>
+    <input type="date" id="cfgStart"/>
+    <label>วันสอบกฎหมาย</label>
+    <input type="date" id="cfgExam"/>
+    <label>เป้าหมายรายได้ (฿)</label>
+    <input type="number" id="cfgGoal" inputmode="numeric" value="500000"/>
+    <label>ชื่อเล่น</label>
+    <input type="text" id="cfgName" placeholder="panida"/>
+    <button class="btn primary full gap" onclick="saveCfg()">💾 บันทึก</button>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">🗺️</span> Roadmap 6 เดือน</h3>
+    <div id="roadmap"></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">💾</span> Backup</h3>
+    <button class="btn full" onclick="exportData()">⬇️ Export JSON</button>
+    <button class="btn full gap" onclick="document.getElementById('importFile').click()">⬆️ Import JSON</button>
+    <input type="file" id="importFile" hidden onchange="importData(event)" accept="application/json"/>
+    <button class="btn warn full gap" onclick="resetAll()">🗑 ล้างข้อมูลทั้งหมด</button>
+    <div class="mute gap center">Made for panida · The Sim Life v2.0</div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- ============ BOTTOM NAV ============ -->
+<nav class="nav">
+  <button class="tab active" data-tab="home"><div class="i">🏠</div><div>Home</div></button>
+  <button class="tab" data-tab="quests"><div class="i">⚔️</div><div>Quest</div></button>
+  <button class="tab" data-tab="income"><div class="i">💰</div><div>Income</div></button>
+  <button class="tab" data-tab="study"><div class="i">⚖️</div><div>Law</div></button>
+  <button class="tab" data-tab="me"><div class="i">🎮</div><div>Me</div></button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= STATE ================= */
+const DEFAULT = {
+  name:'panida', start:'2026-04-08', exam:'2026-07-08', goal:500000,
+  email:'ufals88s@gmail.com', line:'', hook:'', notifyTime:'22:30',
+  xp:0, streak:0, lastActive:null,
+  stats:{Energy:80,Hunger:80,Hygiene:80,Fun:60,Social:60,Focus:70},
+  statsTs:Date.now(),
+  income:[], content:[], study:[], quests:{}, weekly:{},
+  skills:{Career:1,Law:1,Content:1,Fitness:1,Charisma:1,Discipline:1}
+};
+let S = load();
+
+function load(){
+  try{const raw=localStorage.getItem('simlife');if(!raw)return JSON.parse(JSON.stringify(DEFAULT));
+    return Object.assign({},DEFAULT,JSON.parse(raw));}
+  catch(e){return JSON.parse(JSON.stringify(DEFAULT))}
+}
+function save(){try{localStorage.setItem('simlife',JSON.stringify(S))}catch(e){}}
+
+/* ================= HELPERS ================= */
+const $=(id)=>document.getElementById(id);
+const todayKey=()=>new Date().toISOString().slice(0,10);
+const weekKey=()=>{const d=new Date();const o=new Date(d.getFullYear(),0,1);const w=Math.ceil(((d-o)/86400000+o.getDay()+1)/7);return d.getFullYear()+'-W'+w};
+const fmtMoney=(n)=>'฿'+Math.round(n).toLocaleString();
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
+
+/* ================= DATA ================= */
+const DAILY_QUESTS=[
+  {id:'wake',ic:'🌅',txt:'ตื่น 05:30 + ออกกำลังกาย 20 นาที',xp:10,stat:['Energy',15]},
+  {id:'water',ic:'💧',txt:'ดื่มน้ำครบ 8 แก้ว',xp:5,stat:['Hunger',10]},
+  {id:'work',ic:'💼',txt:'ทำงานประจำครบ 9 ชั่วโมง',xp:20,stat:['Focus',-10]},
+  {id:'law1',ic:'⚖️',txt:'อ่านกฎหมาย 30 นาที (เช้า)',xp:10,stat:['Focus',10],skill:'Law'},
+  {id:'law2',ic:'📖',txt:'อ่านกฎหมาย 2 ชั่วโมง (เย็น)',xp:25,stat:['Focus',-5],skill:'Law'},
+  {id:'post',ic:'🎬',txt:'โพสต์ TikTok/Reels 1 คลิป',xp:25,skill:'Content'},
+  {id:'shop',ic:'🛒',txt:'รีวิว TikTok Shop 1 ชิ้น',xp:15,skill:'Charisma'},
+  {id:'social',ic:'💬',txt:'ตอบคอมเม้นต์/DM แฟนคลับ',xp:5,stat:['Social',15]},
+  {id:'sleep',ic:'😴',txt:'นอนก่อน 23:30',xp:10,stat:['Energy',30]},
+  {id:'plan',ic:'📓',txt:'Journal + วางแผนพรุ่งนี้',xp:5,skill:'Discipline'}
+];
+const WEEKLY_QUESTS=[
+  {id:'live',ic:'📡',txt:'ไลฟ์สด TikTok 1 ครั้ง',xp:50},
+  {id:'mock',ic:'📝',txt:'ทำข้อสอบกฎหมายเก่า 1 ชุด',xp:50},
+  {id:'rest',ic:'🌿',txt:'Self-care 1 วันเต็ม',xp:30},
+  {id:'review',ic:'📊',txt:'รีวิวรายได้ + ปรับกลยุทธ์',xp:40},
+  {id:'gym',ic:'💪',txt:'ออกกำลังกาย ≥3 วันในสัปดาห์',xp:40}
+];
+// ⚖️ Exam Crunch Mode (3 เดือนแรก · เน้นสอบกฎหมาย · นอน 5 ชม.)
+const ROUTINE=[
+  ['00:00–05:00','😴 นอน 5 ชม.','life'],
+  ['05:30–06:30','🔥 GOLDEN HOUR · Batch AI content 2-3 คลิป','content'],
+  ['06:30–07:00','⚖️ อ่านกฎหมาย 30 นาที (warm-up + flashcard)','law'],
+  ['07:30–08:00','🎧 commute · ฟัง audio สรุปกฎหมาย','law'],
+  ['08:00–17:00','💼 งานประจำ 9 ชม. (พักเที่ยง: flashcard 30 นาที)','work'],
+  ['17:30–18:30','🍱 พัก + อ่านสรุป 30 นาที','law'],
+  ['18:30–20:30','⚖️ DEEP STUDY กฎหมาย 2 ชม. (อ่านเข้ม + ทำข้อสอบเก่า)','law'],
+  ['20:30–22:30','⚡ DEEP WORK content 2 ชม. (edit / post / app)','content'],
+  ['22:30–23:30','📊 analytics + Gemlogin check','content'],
+  ['23:30–00:00','📓 journal + ทบทวน flashcard','life']
+];
+const LAW_PLAN=[
+  ['Wk 1-2','รัฐธรรมนูญ','สรุป+flashcard'],
+  ['Wk 3-4','แพ่ง: บุคคล/นิติกรรม','เคส+ทดสอบ'],
+  ['Wk 5-6','แพ่ง: หนี้/ละเมิด','mind map'],
+  ['Wk 7-8','อาญา: ทั่วไป/เฉพาะ','flashcard'],
+  ['Wk 9-10','วิ.แพ่ง/วิ.อาญา','ข้อสอบเก่า'],
+  ['Wk 11','Mock Exam x2','จับเวลา'],
+  ['Wk 12','Final Review','พัก+ทบทวน']
+];
+const ROADMAP=[
+  ['เม.ย. 2026','Foundation','ตั้งระบบ · เปิด TikTok Shop · ทดลอง 30 คลิป','฿20,000'],
+  ['พ.ค. 2026','Build','หา niche · Live 2x/wk · อ่านกฎหมายเข้ม','฿50,000'],
+  ['มิ.ย. 2026','Accelerate','ขยาย affiliate · Sprint สอบ wk9-12','฿100,000'],
+  ['ก.ค. 2026','Exam+Scale','⚖️ สอบ · กลับมา scale','฿120,000'],
+  ['ส.ค. 2026','Optimize','ROI · จ้างตัดต่อ · viral','฿120,000'],
+  ['ก.ย. 2026','Final Push','ปิดเป้า · ebook/course','฿90,000']
+];
+const STAT_META={Energy:'⚡',Hunger:'🍙',Hygiene:'🚿',Fun:'🎮',Social:'💬',Focus:'🧠'};
+
+/* ================= DECAY ================= */
+function applyDecay(){
+  const now=Date.now();
+  const hrs=Math.floor((now-(S.statsTs||now))/3600000);
+  if(hrs>0){
+    Object.keys(S.stats).forEach(k=>S.stats[k]=Math.max(0,S.stats[k]-hrs*5));
+    S.statsTs=now;save();
+  }
+}
+
+/* ================= RENDER HEADER ================= */
+function renderHeader(){
+  const today=new Date();
+  $('hiName').textContent='Hi, '+(S.name||'panida');
+  $('hiDate').textContent=today.toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'short'});
+  const lvl=Math.floor(S.xp/100)+1;
+  $('lvlBadge').textContent=lvl;
+  if($('lvlBadge2'))$('lvlBadge2').textContent=lvl;
+  $('streakN').textContent=S.streak||0;
+}
+
+/* ================= POWER SCORE ================= */
+function computePower(){
+  const statAvg=Object.values(S.stats).reduce((a,b)=>a+b,0)/6;
+  const incomePct=Math.min(100,S.income.reduce((a,b)=>a+b.amt,0)/S.goal*100);
+  const k=todayKey();const qDone=Object.values(S.quests[k]||{}).filter(Boolean).length;
+  const questPct=qDone/DAILY_QUESTS.length*100;
+  return Math.round(statAvg*.35+incomePct*.4+questPct*.25);
+}
+function renderHome(){
+  applyDecay();
+  const power=computePower();
+  $('powerN').textContent=power;
+  $('ringFg').style.strokeDashoffset = 301.6 - (power/100*301.6);
+
+  const total=S.income.reduce((a,b)=>a+b.amt,0);
+  $('incomeBig').textContent=fmtMoney(total);
+  $('incomeBarHome').style.width=Math.min(100,total/S.goal*100)+'%';
+
+  const examDays=Math.max(0,Math.floor((new Date(S.exam)-new Date())/86400000));
+  $('lawDaysHome').textContent=examDays;
+
+  // Stats grid
+  const g=$('statsGrid');g.innerHTML='';
+  Object.entries(S.stats).forEach(([k,v])=>{
+    const color=v>60?'green':v>30?'gold':'red';
+    const div=document.createElement('div');div.className='stat';
+    div.innerHTML=`
+      <div class="r"><b>${STAT_META[k]} ${k}</b><span class="v">${v}/100</span></div>
+      <div class="bar ${color==='green'?'green':color==='gold'?'gold':'red'}"><span style="width:${v}%"></span></div>
+      <div class="btns"><button onclick="bumpStat('${k}',10)">+10</button><button onclick="bumpStat('${k}',25)">+25</button><button onclick="bumpStat('${k}',-10)">−</button></div>`;
+    g.appendChild(div);
+  });
+
+  // Today's quest progress
+  const k=todayKey();const done=Object.values(S.quests[k]||{}).filter(Boolean).length;
+  $('todayDone').textContent=done+'/'+DAILY_QUESTS.length;
+  $('todayBar').style.width=(done/DAILY_QUESTS.length*100)+'%';
+
+  // Skill tree
+  const st=$('skillTree');st.innerHTML='';
+  Object.entries(S.skills).forEach(([k,v])=>{
+    st.innerHTML+=`<div style="margin-bottom:10px"><div class="row" style="margin-bottom:4px;font-size:13px"><b>${k}</b><span class="mute">Lv ${v}/10</span></div><div class="bar purple"><span style="width:${v*10}%"></span></div></div>`;
+  });
+}
+function bumpStat(k,n){S.stats[k]=Math.max(0,Math.min(100,S.stats[k]+n));save();renderHome();if(n>0)toast('เติม '+STAT_META[k]+' '+k+' +'+n)}
+
+/* ================= QUESTS ================= */
+function renderQuests(){
+  const k=todayKey();if(!S.quests[k])S.quests[k]={};
+  const list=$('questList');list.innerHTML='';
+  DAILY_QUESTS.forEach(q=>{
+    const done=S.quests[k][q.id];
+    const el=document.createElement('div');el.className='quest'+(done?' done':'');
+    el.innerHTML=`<div class="box">${done?'✓':q.ic}</div><div class="txt">${q.txt}</div><div class="xp">+${q.xp} XP</div>`;
+    el.onclick=()=>toggleQuest(q);
+    list.appendChild(el);
+  });
+  const wkK=weekKey();if(!S.weekly[wkK])S.weekly[wkK]={};
+  const wl=$('weeklyList');wl.innerHTML='';
+  WEEKLY_QUESTS.forEach(q=>{
+    const done=S.weekly[wkK][q.id];
+    const el=document.createElement('div');el.className='quest'+(done?' done':'');
+    el.innerHTML=`<div class="box">${done?'✓':q.ic}</div><div class="txt">${q.txt}</div><div class="xp">+${q.xp} XP</div>`;
+    el.onclick=()=>{S.weekly[wkK][q.id]=!done;S.xp+=done?-q.xp:q.xp;save();renderQuests();renderHeader();toast(done?'−'+q.xp+' XP':'+'+q.xp+' XP 🎉')};
+    wl.appendChild(el);
+  });
+  // Routine
+  const r=$('routine');if(r){r.innerHTML='';ROUTINE.forEach(([t,a,tag])=>{
+    r.innerHTML+=`<div class="row" style="padding:8px 0;border-bottom:1px solid var(--line)"><div><b style="font-size:13px">${t}</b><div class="mute" style="font-size:11px">${a}</div></div><span class="chip ${tag}">${tag}</span></div>`;
+  })}
+}
+function toggleQuest(q){
+  const k=todayKey();const done=S.quests[k][q.id];
+  S.quests[k][q.id]=!done;
+  S.xp+=done?-q.xp:q.xp;
+  if(q.stat&&!done){S.stats[q.stat[0]]=Math.max(0,Math.min(100,S.stats[q.stat[0]]+q.stat[1]))}
+  if(q.skill&&!done){S.skills[q.skill]=Math.min(10,S.skills[q.skill]+.1|0||S.skills[q.skill])}
+  // Streak
+  if(!done){updateStreak()}
+  save();renderQuests();renderHeader();renderHome();
+  toast(done?'−'+q.xp+' XP':'+'+q.xp+' XP 🎉');
+  // all done?
+  const total=DAILY_QUESTS.length;const now=Object.values(S.quests[k]).filter(Boolean).length;
+  if(now===total){S.xp+=50;save();toast('🏆 เคลียร์ครบทุก Quest! +50 BONUS');renderHeader()}
+}
+function updateStreak(){
+  const today=todayKey();
+  if(S.lastActive===today)return;
+  const yest=new Date();yest.setDate(yest.getDate()-1);
+  S.streak=(S.lastActive===yest.toISOString().slice(0,10))?(S.streak||0)+1:1;
+  S.lastActive=today;
+}
+function completeAllQuests(){const k=todayKey();DAILY_QUESTS.forEach(q=>{if(!S.quests[k][q.id]){S.quests[k][q.id]=true;S.xp+=q.xp}});updateStreak();save();renderQuests();renderHeader();renderHome();toast('🏆 เคลียร์ครบวันนี้!')}
+function resetQuests(){const k=todayKey();const done=Object.entries(S.quests[k]||{}).filter(([,v])=>v).length;DAILY_QUESTS.forEach(q=>{if(S.quests[k]&&S.quests[k][q.id])S.xp-=q.xp});S.quests[k]={};save();renderQuests();renderHeader();renderHome()}
+
+/* ================= INCOME ================= */
+function addIncome(){
+  const amt=+$('incomeAmt').value;if(!amt)return toast('กรุณาใส่จำนวน');
+  S.income.push({date:todayKey(),src:$('incomeSrc').value,amt});
+  $('incomeAmt').value='';S.xp+=Math.floor(amt/100);save();
+  renderIncome();renderHome();renderHeader();
+  toast('+'+fmtMoney(amt)+' 🎉');
+  const total=S.income.reduce((a,b)=>a+b.amt,0);
+  if(total>=S.goal){notify('🏆 ปลดล็อค! ทะลุเป้า 500,000 บาท!')}
+}
+function renderIncome(){
+  const total=S.income.reduce((a,b)=>a+b.amt,0);
+  $('incomeTotal').textContent=fmtMoney(total);
+  $('incomeBarI').style.width=Math.min(100,total/S.goal*100)+'%';
+  $('incomePct').textContent=Math.round(total/S.goal*100)+'% ของเป้าหมาย ฿'+S.goal.toLocaleString();
+  const m=new Date().toISOString().slice(0,7);
+  const mSum=S.income.filter(i=>i.date.startsWith(m)).reduce((a,b)=>a+b.amt,0);
+  $('incomeMonthI').textContent=fmtMoney(mSum);
+  $('incomeToday').textContent=fmtMoney(S.income.filter(i=>i.date===todayKey()).reduce((a,b)=>a+b.amt,0));
+  // Months remaining
+  const endDate=new Date(S.start);endDate.setMonth(endDate.getMonth()+6);
+  const monthsLeft=Math.max(1,Math.ceil((endDate-new Date())/(30*86400000)));
+  $('incomeNeed').textContent=fmtMoney(Math.max(0,(S.goal-total)/monthsLeft));
+  const l=$('incomeList');l.innerHTML='';
+  S.income.slice().reverse().slice(0,20).forEach((i,idx)=>{
+    const realIdx=S.income.length-1-idx;
+    const el=document.createElement('div');el.className='item';
+    el.innerHTML=`<div class="ico">💰</div><div class="main"><div class="t">${i.src}</div><div class="s">${i.date}</div></div><div class="amt">${fmtMoney(i.amt)}</div><button class="x" onclick="delIncome(${realIdx})">×</button>`;
+    l.appendChild(el);
+  });
+  // content
+  const cl=$('contentList');cl.innerHTML='';
+  S.content.slice().reverse().slice(0,15).forEach((c,idx)=>{
+    const realIdx=S.content.length-1-idx;
+    const el=document.createElement('div');el.className='item';
+    el.innerHTML=`<div class="ico">🎬</div><div class="main"><div class="t">${c.topic}</div><div class="s">${c.date} · <span class="chip">${c.status}</span></div></div><button class="btn" style="padding:6px 10px;font-size:11px" onclick="cycleContent(${realIdx})">→</button><button class="x" onclick="delContent(${realIdx})">×</button>`;
+    cl.appendChild(el);
+  });
+  const mo=new Date().toISOString().slice(0,7);
+  $('postCount').textContent=S.content.filter(c=>c.date.startsWith(mo)&&c.status==='posted').length;
+  renderStreams(total);
+}
+
+/* ===== 500K Money Machine Streams ===== */
+const STREAMS=[
+  {key:'TikTok Shop Affiliate', icon:'🛒', target:160000, color:'#ff7ab6'},
+  {key:'AI Freelance',          icon:'🤖', target:85000,  color:'#2e9d8a'},
+  {key:'YouTube Automation',    icon:'▶️', target:80000,  color:'#ff5252'},
+  {key:'FB Reels + IG Bonus',   icon:'📱', target:75000,  color:'#7c4dff'},
+  {key:'AI Digital Product',    icon:'📦', target:75000,  color:'#ffd166'},
+  {key:'AdMob App',             icon:'📲', target:25000,  color:'#4dd0e1'}
+];
+function streamSum(name){
+  return S.income.filter(i=>i.src.includes(name)).reduce((a,b)=>a+b.amt,0);
+}
+function renderStreams(total){
+  const wrap=$('streamsList');if(!wrap)return;
+  wrap.innerHTML='';
+  STREAMS.forEach(s=>{
+    const cur=streamSum(s.key);
+    const pct=Math.min(100,Math.round(cur/s.target*100));
+    const row=document.createElement('div');row.style.marginBottom='10px';
+    row.innerHTML=`
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+        <span>${s.icon} <b>${s.key}</b></span>
+        <span style="color:${s.color};font-weight:700">${fmtMoney(cur)} / ${fmtMoney(s.target)}</span>
+      </div>
+      <div class="bar" style="height:6px"><span style="width:${pct}%;background:${s.color}"></span></div>
+      <div class="mute" style="font-size:10px;text-align:right">${pct}%</div>`;
+    wrap.appendChild(row);
+  });
+  // Sprint week
+  const start=new Date(S.start);
+  const wk=Math.max(1,Math.min(26,Math.ceil((Date.now()-start)/(7*86400000))));
+  $('sprintWk').textContent=wk;
+  $('sprintLeft').textContent=Math.max(0,26-wk);
+  $('sprintBar').style.width=Math.round(wk/26*100)+'%';
+  // Quick add
+  const qa=$('quickAdd');if(qa){
+    qa.innerHTML='';
+    STREAMS.forEach(s=>{
+      const b=document.createElement('button');
+      b.className='btn';b.style.fontSize='11px';b.style.padding='10px 6px';
+      b.innerHTML=`${s.icon}<br>+500฿`;
+      b.onclick=()=>{
+        S.income.push({date:todayKey(),src:s.icon+' '+s.key,amt:500});
+        S.xp+=5;save();renderIncome();renderHome();renderHeader();
+        toast('+฿500 '+s.icon);
+      };
+      qa.appendChild(b);
+    });
+  }
+}
+function delIncome(i){S.income.splice(i,1);save();renderIncome();renderHome()}
+function addContent(){const t=$('cTopic').value.trim();if(!t)return;S.content.push({date:todayKey(),topic:t,status:$('cStatus').value});$('cTopic').value='';save();renderIncome();toast('+คลิปใหม่')}
+const CYCLE=['idea','script','shoot','edit','posted'];
+function cycleContent(i){const c=S.content[i];c.status=CYCLE[(CYCLE.indexOf(c.status)+1)%CYCLE.length];if(c.status==='posted'){S.xp+=25;S.skills.Content=Math.min(10,S.skills.Content+.2|0||S.skills.Content);toast('+25 XP · โพสต์แล้ว 🎉')}save();renderIncome();renderHeader()}
+function delContent(i){S.content.splice(i,1);save();renderIncome()}
+
+/* ================= STUDY ================= */
+function renderStudy(){
+  const examDays=Math.max(0,Math.floor((new Date(S.exam)-new Date())/86400000));
+  $('lawDaysS').textContent=examDays;
+  const lp=$('lawPlan');lp.innerHTML='';
+  LAW_PLAN.forEach(([w,t,d])=>{
+    lp.innerHTML+=`<div class="row" style="padding:10px 0;border-bottom:1px solid var(--line)"><div><b style="font-size:13px">${w}</b><div class="mute" style="font-size:11px">${t}</div></div><span class="chip law">${d}</span></div>`;
+  });
+  // study log
+  const wkStart=new Date();wkStart.setDate(wkStart.getDate()-wkStart.getDay());
+  const wkSum=S.study.filter(s=>new Date(s.date)>=wkStart).reduce((a,b)=>a+b.mins,0);
+  $('studyWk').textContent=wkSum;
+  const sl=$('studyList');sl.innerHTML='';
+  S.study.slice().reverse().slice(0,10).forEach((s,idx)=>{
+    const realIdx=S.study.length-1-idx;
+    sl.innerHTML+=`<div class="item"><div class="ico">📚</div><div class="main"><div class="t">${s.topic}</div><div class="s">${s.date}</div></div><div class="amt" style="color:var(--gold)">${s.mins}m</div><button class="x" onclick="delStudy(${realIdx})">×</button></div>`;
+  });
+}
+function addStudy(){const t=$('studyTopic').value.trim();const m=+$('studyMins').value;if(!t||!m)return;S.study.push({date:todayKey(),topic:t,mins:m});S.xp+=Math.floor(m/5);S.skills.Law=Math.min(10,S.skills.Law+.1|0||S.skills.Law);$('studyTopic').value='';$('studyMins').value='';save();renderStudy();renderHeader();toast('+'+m+' นาที · +'+Math.floor(m/5)+' XP')}
+function delStudy(i){S.study.splice(i,1);save();renderStudy()}
+
+/* ================= POMODORO ================= */
+let pomo={running:false,secs:25*60,state:'focus',round:0,interval:null};
+function fmtTime(s){return String(s/60|0).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function renderPomo(){$('pomoTime').textContent=fmtTime(pomo.secs);$('pomoState').textContent=(pomo.state==='focus'?'FOCUS · 25 MIN':pomo.state==='short'?'BREAK · 5 MIN':'LONG BREAK · 15 MIN');$('pomoRound').textContent=pomo.round;$('pomoBtn').textContent=pomo.running?'⏸ Pause':'▶ Start'}
+function togglePomo(){if(pomo.running){clearInterval(pomo.interval);pomo.running=false}
+  else{pomo.running=true;pomo.interval=setInterval(()=>{pomo.secs--;if(pomo.secs<=0){clearInterval(pomo.interval);pomo.running=false;pomoNext();notify('⏰ Pomodoro จบ! '+(pomo.state==='focus'?'พักได้':'กลับมาโฟกัส'));if(navigator.vibrate)navigator.vibrate([200,100,200])}renderPomo()},1000)}
+  renderPomo()}
+function pomoNext(){if(pomo.state==='focus'){pomo.round++;S.xp+=15;S.skills.Law=Math.min(10,S.skills.Law);save();renderHeader();if(pomo.round%4===0){pomo.state='long';pomo.secs=15*60}else{pomo.state='short';pomo.secs=5*60}}else{pomo.state='focus';pomo.secs=25*60}}
+function resetPomo(){clearInterval(pomo.interval);pomo={running:false,secs:25*60,state:'focus',round:0,interval:null};renderPomo()}
+
+/* ================= PROFILE ================= */
+function renderMe(){
+  const lvl=Math.floor(S.xp/100)+1;
+  const titles=['Newbie','Apprentice','Hustler','Rising Star','Pro','Expert','Elite','Legend','Master','Grand Master'];
+  $('meLvl').textContent='Level '+lvl+' · '+(titles[Math.min(lvl-1,9)]||'Grand Master');
+  $('meXp').textContent=S.xp;
+  $('meNext').textContent=lvl*100;
+  $('xpBar').style.width=((S.xp%100))+'%';
+  // roadmap
+  const rm=$('roadmap');rm.innerHTML='';
+  ROADMAP.forEach(([m,f,d,g])=>{
+    rm.innerHTML+=`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="row"><b style="font-size:13px">${m}</b><span class="chip content">${g}</span></div><div class="mute" style="font-size:11px;margin-top:2px"><b style="color:var(--cyan)">${f}</b> · ${d}</div></div>`;
+  });
+  // cfg
+  $('cfgEmail').value=S.email||'';$('cfgLine').value=S.line||'';$('cfgHook').value=S.hook||'';
+  $('cfgTime').value=S.notifyTime||'22:30';$('cfgStart').value=S.start;$('cfgExam').value=S.exam;
+  $('cfgGoal').value=S.goal;$('cfgName').value=S.name||'';
+}
+function saveCfg(){
+  S.email=$('cfgEmail').value;S.line=$('cfgLine').value;S.hook=$('cfgHook').value;
+  S.notifyTime=$('cfgTime').value;S.start=$('cfgStart').value;S.exam=$('cfgExam').value;
+  S.goal=+$('cfgGoal').value||500000;S.name=$('cfgName').value||'panida';
+  save();renderAll();toast('💾 บันทึกแล้ว');
+}
+
+/* ================= NOTIFY ================= */
+async function notify(msg){
+  // Web push
+  if('Notification' in window && Notification.permission==='granted'){
+    try{new Notification('Sim Life 🎮',{body:msg,icon:'icon.png',badge:'icon.png',vibrate:[200,100,200]})}catch(e){}
+  }
+  if(navigator.vibrate)navigator.vibrate([100,50,100]);
+  // LINE Notify (อาจติด CORS บน browser; ใช้ webhook แทนปลอดภัยกว่า)
+  if(S.line){try{await fetch('https://notify-api.line.me/api/notify',{method:'POST',mode:'no-cors',headers:{'Authorization':'Bearer '+S.line,'Content-Type':'application/x-www-form-urlencoded'},body:'message='+encodeURIComponent(msg)})}catch(e){}}
+  // Webhook
+  if(S.hook){try{await fetch(S.hook,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:msg,email:S.email,time:new Date().toISOString()})})}catch(e){}}
+  toast('🔔 '+msg.slice(0,50));
+}
+function testNotify(){notify('🎮 ทดสอบ Sim Life · '+new Date().toLocaleTimeString('th-TH'))}
+async function requestNotif(){if(!('Notification' in window))return toast('Browser ไม่รองรับ');const p=await Notification.requestPermission();toast(p==='granted'?'✅ อนุญาตแล้ว':'❌ ไม่อนุญาต')}
+
+/* daily schedule (while app open) */
+setInterval(()=>{
+  const d=new Date();const hm=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  if(hm===S.notifyTime && !window._sentToday){
+    window._sentToday=true;setTimeout(()=>window._sentToday=false,90000);
+    const k=todayKey();const done=Object.values(S.quests[k]||{}).filter(Boolean).length;
+    const inc=S.income.reduce((a,b)=>a+b.amt,0);
+    notify(`📊 สรุปวันนี้\n✅ ${done}/${DAILY_QUESTS.length} quests\n💰 ฿${inc.toLocaleString()}/${S.goal.toLocaleString()}\n⭐ XP ${S.xp} · 🔥 streak ${S.streak}`);
+  }
+},30000);
+
+/* auto-decay check every minute */
+setInterval(()=>{applyDecay();if($('s-home').classList.contains('active'))renderHome()},60000);
+
+/* ================= BACKUP ================= */
+function exportData(){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='simlife-'+todayKey()+'.json';a.click();toast('⬇️ Export สำเร็จ')}
+function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{S=Object.assign({},DEFAULT,JSON.parse(r.result));save();renderAll();toast('⬆️ Import สำเร็จ')}catch(err){toast('❌ ไฟล์ไม่ถูกต้อง')}};r.readAsText(f)}
+function resetAll(){if(confirm('ลบข้อมูลทั้งหมด?')){localStorage.removeItem('simlife');S=JSON.parse(JSON.stringify(DEFAULT));renderAll();toast('🗑 ล้างเรียบร้อย')}}
+
+/* ================= NAV ================= */
+function go(tab){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav .tab').forEach(t=>t.classList.remove('active'));
+  $('s-'+tab).classList.add('active');
+  document.querySelector(`.nav .tab[data-tab="${tab}"]`).classList.add('active');
+  window.scrollTo(0,0);
+  if(tab==='home')renderHome();
+  if(tab==='quests')renderQuests();
+  if(tab==='income')renderIncome();
+  if(tab==='study'){renderStudy();renderPomo()}
+  if(tab==='me')renderMe();
+}
+document.querySelectorAll('.nav .tab').forEach(t=>t.addEventListener('click',()=>go(t.dataset.tab)));
+
+/* ================= INIT ================= */
+function renderAll(){renderHeader();renderHome();renderQuests();renderIncome();renderStudy();renderMe();renderPomo()}
+renderAll();
+
+/* Register service worker */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+/* Show install hint on mobile first visit */
+if(!localStorage.getItem('hintSeen')){
+  setTimeout(()=>{$('installHint').style.display='block';localStorage.setItem('hintSeen','1')},1200);
+}
+</script>
+</body>
+</html>
