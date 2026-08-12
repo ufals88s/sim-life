@@ -1,0 +1,28 @@
+[
+  {
+    "id": "shop-demo",
+    "name": "ร้านเดโม่ขนมบ้านคุณแม่",
+    "channelSecret": "LINE_CHANNEL_SECRET_ของร้านนี้",
+    "accessToken": "LINE_CHANNEL_ACCESS_TOKEN_ของร้านนี้",
+    "ownerUserId": "Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "promptpayId": "0812345678",
+    "shippingFlatRate": 40,
+    "monthlyOrderQuota": 30,
+    "slipApiKey": "",
+    "products": [
+      { "code": "1", "name": "คุกกี้เนยสด (กล่อง)", "price": 120 },
+      { "code": "2", "name": "บราวนี่ช็อกโกแลต (ชิ้น)", "price": 45 },
+      { "code": "3", "name": "เค้กกล้วยหอม (ปอนด์)", "price": 250, "note": "สั่งล่วงหน้า 1 วัน" }
+    ],
+    "faq": [
+      {
+        "keywords": ["ส่งกี่วัน", "ได้ของเมื่อไหร่", "จัดส่ง"],
+        "answer": "จัดส่งทุกวันจันทร์–เสาร์ค่ะ สั่งก่อน 14:00 ส่งวันเดียวกัน ได้รับภายใน 1–2 วันค่ะ 🚚"
+      },
+      {
+        "keywords": ["เปิดกี่โมง", "เวลาทำการ"],
+        "answer": "ร้านเปิดรับออเดอร์ทุกวัน 8:00–20:00 ค่ะ"
+      }
+    ]
+  }
+]
