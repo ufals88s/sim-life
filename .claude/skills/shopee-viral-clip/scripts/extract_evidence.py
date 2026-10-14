@@ -185,7 +185,8 @@ def main():
                     for t in tr:
                         f.write(f"[{t['start']:6.2f}-{t['end']:6.2f}] {t['text']}\n")
                 chars = sum(len(t["text"].replace(" ", "")) for t in tr if t["text"] != "(silence)")
-                metrics["speech_chars_per_s"] = round(chars / max(duration, 1e-6), 1)
+                audio_len = tr[-1]["end"] if tr else duration  # audio stops before the silent Shopee outro
+                metrics["speech_chars_per_s"] = round(chars / max(audio_len, 1e-6), 1)
         except ImportError as exc:
             metrics["speech_error"] = f"sherpa-onnx/soundfile/numpy not installed: {exc}"
 
