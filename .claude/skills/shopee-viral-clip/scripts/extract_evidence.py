@@ -14,7 +14,7 @@ https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-w
 (plus silero_vad.onnx from the same release page for speech-timing stats).
 
 Usage:
-  python3 extract_evidence.py CLIP.mp4 OUT_DIR [--whisper-dir DIR] [--vad PATH/silero_vad.onnx] [--lang th]
+  python3 extract_evidence.py CLIP.mp4 OUT_DIR [--whisper-dir DIR | --transcript OLD/transcript.json] [--vad PATH/silero_vad.onnx] [--lang th]
 """
 import argparse
 import glob
@@ -90,11 +90,32 @@ def speech_stats(wav, vad_model):
     mask = np.zeros(len(audio), bool)
     for a, b in segs:
         mask[a:b] = True
+    gaps = [(segs[i + 1][0] - segs[i][1]) / 16000 for i in range(len(segs) - 1)]
     return {
         "first_speech_s": round(segs[0][0] / 16000, 2) if segs else None,
+        "last_speech_end_s": round(segs[-1][1] / 16000, 2) if segs else None,
+        "max_gap_s": round(max(gaps, default=0.0), 2),
         "speech_coverage": round(float(mask.mean()), 3),
         "speech_segments_s": [[round(a / 16000, 2), round(b / 16000, 2)] for a, b in segs],
     }
+
+
+def outro_start(path, duration, step=0.25, max_back=6.0):
+    """Start (s) of Shopee's orange 'Shopee Video' end card (median RGB ~240,76,41), or None if absent."""
+    import io
+    from PIL import Image, ImageStat
+    t, start = duration - 0.3, None
+    while t > max(0.0, duration - max_back):
+        r = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{t:.2f}", "-i", path, "-frames:v", "1",
+                            "-vf", "scale=64:-1", "-f", "image2pipe", "-vcodec", "png", "-"], capture_output=True)
+        if not r.stdout:
+            break
+        red, green, blue = ImageStat.Stat(Image.open(io.BytesIO(r.stdout)).convert("RGB")).median
+        if not (red > 200 and green < 120 and blue < 90):
+            break
+        start = t
+        t -= step
+    return start
 
 
 def transcribe(wav, model_dir, lang):
@@ -146,6 +167,7 @@ def main():
     ap.add_argument("out_dir")
     ap.add_argument("--whisper-dir", help="sherpa-onnx Whisper model folder (e.g. sherpa-onnx-whisper-large-v3)")
     ap.add_argument("--vad", help="path to silero_vad.onnx for speech timing stats")
+    ap.add_argument("--transcript", help="reuse transcript.json from an earlier run instead of running Whisper again")
     ap.add_argument("--lang", default="th")
     args = ap.parse_args()
 
@@ -160,32 +182,46 @@ def main():
 
     duration = probe_duration(args.clip)
     cuts = scene_cuts(args.clip)
+    outro = outro_start(args.clip, duration)
+    if outro is not None:  # snap to the scene cut that starts the orange card
+        near = [c for c in cuts if abs(c - outro) <= 0.3]
+        outro = near[-1] if near else round(outro, 2)
+    content = outro if outro is not None else duration
+    content_cuts = [c for c in cuts if c < content - 0.05]
     metrics = {
         "clip": os.path.abspath(args.clip),
         "duration_s": round(duration, 2),
-        "scene_cuts_s": cuts,
-        "cuts_count": len(cuts),
-        "avg_shot_len_s": round(duration / (len(cuts) + 1), 2),
+        "outro_start_s": outro,
+        "content_s": round(content, 2),
+        "scene_cuts_s": content_cuts,
+        "cuts_count": len(content_cuts),
+        "avg_shot_len_s": round(content / (len(content_cuts) + 1), 2),
         "integrated_loudness_lufs": loudness(args.clip),
         "contact_sheets": sheets,
         "hook_strip": os.path.join(out, "hook_strip.jpg"),
-        "note": "Downloaded Shopee clips end with ~3 s orange 'Shopee Video' outro; exclude it from content length.",
+        "note": "content_s excludes the orange 'Shopee Video' end card when detected; scene detection under-counts fast cuts.",
     }
 
-    if args.whisper_dir or args.vad:
+    if args.whisper_dir or args.vad or args.transcript:
         wav = os.path.join(out, "audio16k.wav")
         run(["ffmpeg", "-v", "error", "-y", "-i", args.clip, "-ac", "1", "-ar", "16000", wav])
         try:
             if args.vad:
                 metrics.update(speech_stats(wav, args.vad))
+                if metrics.get("last_speech_end_s") is not None:
+                    metrics["silence_before_end_s"] = round(content - metrics["last_speech_end_s"], 2)
+            tr = None
             if args.whisper_dir:
                 tr = transcribe(wav, args.whisper_dir, args.lang)
                 json.dump(tr, open(os.path.join(out, "transcript.json"), "w"), ensure_ascii=False, indent=1)
                 with open(os.path.join(out, "transcript.txt"), "w") as f:
                     for t in tr:
                         f.write(f"[{t['start']:6.2f}-{t['end']:6.2f}] {t['text']}\n")
+            elif args.transcript:
+                tr = json.load(open(args.transcript))
+            if tr:
                 chars = sum(len(t["text"].replace(" ", "")) for t in tr if t["text"] != "(silence)")
-                audio_len = tr[-1]["end"] if tr else duration  # audio stops before the silent Shopee outro
+                audio_len = tr[-1]["end"]  # audio stops before the silent Shopee outro
                 metrics["speech_chars_per_s"] = round(chars / max(audio_len, 1e-6), 1)
         except ImportError as exc:
             metrics["speech_error"] = f"sherpa-onnx/soundfile/numpy not installed: {exc}"

@@ -1,55 +1,57 @@
-# Shopee Video: platform facts behind the formula
+# ข้อมูลแพลตฟอร์ม Shopee Video ที่อยู่เบื้องหลังสูตร
 
-Collected 14 Oct 2026 from Shopee Seller Education / Help Centre pages and industry sources, through search-result extracts (the full pages could not be opened).
-Each item carries a reliability label. **Shopee does not publish ranking weights**, so treat every "how the algorithm works" claim as a hypothesis.
+รวบรวมเมื่อ 14 ต.ค. 2026 จากหน้า Seller Education / Help Centre ของ Shopee และแหล่งข้อมูลในวงการ โดยอ่านจากข้อความที่ผลการค้นหาแสดง (เปิดหน้าเต็มไม่ได้)
+ทุกข้อมีป้ายบอกความน่าเชื่อถือ **Shopee ไม่เปิดเผยว่าอัลกอริทึมให้น้ำหนักกับปัจจัยไหนแค่ไหน** ดังนั้นทุกข้อที่บอกว่า "อัลกอริทึมทำงานแบบนี้" ให้ถือเป็นสมมติฐาน
 
-## What Shopee officially recommends (official)
-- The For You feed is personalised from each viewer's usage history.
-  - Post every day. Shopee says 2–3 clips a day "increases the chance" of reaching For You.
-  - Keep clips 15–60 s. Show the product in use, tag at most 6 products, and use a steady, sharp camera.
-  - Source: seller.shopee.co.th/edu/article/19451
-- From the PH/MY editions of the same guide:
-  - **show the real product within the first 3 s and the result within the next 2 s**;
-  - no catalogue images or screenshots in the first 5 s, and stills no more than 20% of the clip;
-  - 9:16 framing, trending sounds from Shopee's library, trending hashtags;
-  - reply to comments;
-  - no third-party watermarks and no reposting other people's footage.
-  - Sources: seller.shopee.ph/edu/article/24499 and seller.shopee.com.my/edu/article/24184
-- Product-video spec: 10–60 s, MP4, 30 MB or less. Source: seller.shopee.co.th/edu/article/12762
-- Creator Center measures:
-  - unique viewers;
-  - **effective views (watched more than 3 s)**;
-  - average watch time;
-  - order rate.
-  - Data updates daily at 12:00 (Thai time) and starts from day 2 after posting.
-  - Source: seller.shopee.co.th/edu/article/25312
-- Viewers can long-press and pick "Not interested". A posted clip cannot be edited, and AI content must be labelled. Source: seller.shopee.co.th/edu/article/19425
-- Creator Level is calculated over the last 28 days and updated every Tuesday. A posting day only counts if the clip is at least 10 s. Source: help.shopee.co.th/portal/10/article/203761
-- **Original Creator programme (from 1 Mar 2025):**
-  - pays extra commission on original review clips;
-  - requires the creator to be identifiable by **face, a body part (such as hands) or voice**, so a hands-plus-voiceover clip qualifies;
-  - excludes slideshows, screenshots and screen recordings;
-  - requires the Orange Cart product tag.
-  - Source: help.shopee.co.th/portal/10/article/175358
+## สิ่งที่ Shopee แนะนำอย่างเป็นทางการ (ข้อมูลทางการ)
+- หน้า For You คัดคลิปให้แต่ละคนจากประวัติการใช้งานของคนดูคนนั้น
+  - โพสต์ทุกวัน Shopee บอกว่าโพสต์วันละ 2–3 คลิป "เพิ่มโอกาส" ที่จะได้ขึ้น For You
+  - ความยาว 15–60 วิ โชว์สินค้าขณะใช้งาน ติดสินค้าไม่เกิน 6 ชิ้น และใช้กล้องที่นิ่งและคมชัด
+  - แหล่งที่มา: seller.shopee.co.th/edu/article/19451
+- จากคู่มือเดียวกันฉบับฟิลิปปินส์และมาเลเซีย
+  - **โชว์สินค้าจริงภายใน 3 วิแรก และโชว์ผลลัพธ์ภายใน 2 วิถัดมา**
+  - ห้ามใช้ภาพแคตตาล็อกหรือสกรีนช็อตใน 5 วิแรก และภาพนิ่งรวมไม่เกิน 20% ของคลิป
+  - ภาพแนวตั้ง 9:16 ใช้เพลงเทรนด์จากคลังเพลงของ Shopee และแฮชแท็กเทรนด์
+  - ตอบคอมเมนต์
+  - ห้ามมีลายน้ำจากแอปอื่น และห้ามรีโพสต์ฟุตเทจของคนอื่น
+  - แหล่งที่มา: seller.shopee.ph/edu/article/24499 และ seller.shopee.com.my/edu/article/24184 (ฉบับมาเลเซียบอกว่าควรยาวอย่างน้อย 20 วิ)
+- สเปกวิดีโอสินค้า: 10–60 วิ ไฟล์ MP4 ขนาดไม่เกิน 30 MB แหล่งที่มา: seller.shopee.co.th/edu/article/12762
+- Creator Center (หน้าสถิติครีเอเตอร์) วัดค่าเหล่านี้
+  - จำนวนผู้ชมไม่ซ้ำ
+  - **effective views (วิวที่ดูเกิน 3 วิ)**
+  - เวลาดูเฉลี่ย
+  - order rate (สัดส่วนคนดูที่สั่งซื้อ)
+  - ข้อมูลอัปเดตทุกวันเวลา 12:00 น. (เวลาไทย) เริ่มนับตั้งแต่วันที่ 2 หลังโพสต์
+  - แหล่งที่มา: seller.shopee.co.th/edu/article/25312
+- คนดูกดค้างที่คลิปแล้วเลือก "ไม่สนใจ" ได้ คลิปที่โพสต์แล้วแก้ไขไม่ได้ และเนื้อหาที่ทำด้วย AI ต้องติดป้าย แหล่งที่มา: seller.shopee.co.th/edu/article/19425
+- Creator Level (ระดับครีเอเตอร์) คิดจาก 28 วันล่าสุด และอัปเดตทุกวันอังคาร วันโพสต์จะนับก็ต่อเมื่อคลิปยาวอย่างน้อย 10 วิ แหล่งที่มา: help.shopee.co.th/portal/10/article/203761
+- **โครงการ Original Creator Program (โครงการคลิปต้นฉบับ เริ่ม 1 มี.ค. 2025)**
+  - ให้ค่าคอมมิชชันเพิ่มสำหรับคลิปรีวิวที่เป็นต้นฉบับ
+  - ครีเอเตอร์ต้องแสดงตัวตนได้ด้วย **หน้า ส่วนของร่างกาย (เช่น มือ) หรือเสียง** คลิปที่ถ่ายแค่มือแล้วพากย์เสียงจึงเข้าเกณฑ์
+  - ไม่รับสไลด์ภาพ สกรีนช็อต และการอัดหน้าจอ
+  - ต้องติดสินค้าด้วยตะกร้าส้ม (Orange Cart)
+  - แหล่งที่มา: help.shopee.co.th/portal/10/article/175358
 
-## Reading "20,000+ views" (official plus anecdotal)
-- **Shopee pays viewers coins for watching** (1 coin = 1 baht).
-  - Official: the Shopee TH Coins FAQ, the sv.shopee.co.th/reward page, and a "Watch Task" on the feed.
-  - So many viewers are scrolling for coins with low purchase intent. A clip has to make them understand **within 1–3 s** what the product is and why it matters, or they swipe away.
-- Big campaign days (9.9, 10.10, 11.11, 12.12, payday) push total views sharply up. Shopee reported 300M+ Live and Video views on 9.9 in 2025.
-  - **Always check the posting date before concluding that a clip "did well because of its content".**
-- Views are not orders. Anecdotal cases on Lemon8: 100k views → 287 units, while another creator posted daily for 14 days and got 67 clicks and 2 orders.
-- Shopee publishes no ranking weights and has never officially named completion rate as a ranking factor.
-  - Industry blogs that say "watch time / add to cart affects ranking" are guesses.
+## วิธีอ่านตัวเลข "20,000+ วิว" (ทั้งข้อมูลทางการและเรื่องเล่า)
+- **Shopee แจก coins ให้คนดูคลิป** (1 coin = 1 บาท)
+  - ข้อมูลทางการ: หน้า Coins FAQ ของ Shopee TH และหน้า sv.shopee.co.th/reward
+  - "Watch Task" (ภารกิจดูคลิป) บนหน้าฟีดมีเอกสารใน Help Centre ของ Shopee สิงคโปร์ ยังไม่ยืนยันว่าในไทยมีแบบเดียวกัน
+  - ยอดวิวส่วนหนึ่งจึงอาจมาจากคนที่ดูเพื่อเก็บ coins ซึ่งตั้งใจซื้อน้อย แต่ภารกิจ coins นับตามเวลา คนกลุ่มนี้จึงอาจไม่ได้ปัดทิ้งตามคุณภาพคลิปเลย
+  - ตัวเลข "คนดูตัดสินใจภายใน 1–3 วิ" มาจากข้อมูลโฆษณาแบบจ่ายเงินบน TikTok/Google ไม่ใช่ของ Shopee (เป็นสมมติฐาน ยังไม่ยืนยัน)
+- วันแคมเปญใหญ่ (9.9, 10.10, 11.11, 12.12 และวันเงินเดือนออก) ทำให้ยอดวิวรวมพุ่งขึ้นมาก Shopee รายงานว่า 9.9 ปี 2025 มียอดวิว Live และ Video รวมเกิน 300 ล้าน
+  - **ต้องเช็กวันที่โพสต์ทุกครั้งก่อนสรุปว่าคลิป "ปังเพราะเนื้อหา"**
+- ยอดวิวไม่ใช่ยอดขาย เรื่องเล่าจาก Lemon8 (ไม่ใช่ข้อมูลทางการ): คลิป 100k วิวขายได้ 287 ชิ้น ส่วนอีกคนโพสต์ทุกวัน 14 วันได้ 67 คลิกและ 2 ออเดอร์
+- Shopee ไม่เปิดเผยปัจจัยการจัดอันดับ และไม่เคยบอกอย่างเป็นทางการว่าอัตราการดูจบเป็นปัจจัยหนึ่ง
+  - บล็อกในวงการที่บอกว่า "เวลาดู / การกดใส่ตะกร้ามีผลต่ออันดับ" เป็นการคาดเดา
 
-## General short-form commerce evidence (correlational; mostly paid ads)
-- TikTok: 63% of the highest-click-through ads show the product or key message in the first 3 s. Voiceover helps recall, and 86% of ads carry on-screen text.
-- Google/Kantar ABCD: show the product or brand within 5 s with tight framing.
-- Research on Douyin sales clips: several different feature combinations each led to high engagement. **There is no single formula**, so treat this skill as a checklist, not a law.
-- ASMR / "satisfying" footage: results are mixed, but it tends to work better for cheap, low-involvement products.
+## หลักฐานทั่วไปเรื่องคลิปขายของแบบสั้น (เป็นความสัมพันธ์ ไม่ใช่เหตุและผล และส่วนใหญ่มาจากโฆษณาแบบจ่ายเงิน)
+- TikTok: 63% ของโฆษณาที่มีอัตราคลิก (CTR) สูงสุด โชว์สินค้าหรือข้อความหลักภายใน 3 วิแรก เสียงพากย์ช่วยให้จำได้ และ 86% ของโฆษณามีตัวหนังสือบนจอ
+- Google/Kantar ABCD: โชว์สินค้าหรือแบรนด์ภายใน 5 วิ และถ่ายแบบเฟรมแน่น
+- งานวิจัยคลิปขายของบน Douyin: มีหลายชุดคุณสมบัติที่ต่างกันแต่ได้ยอด engagement สูงเหมือนกัน **จึงไม่มีสูตรเดียว** ให้ใช้ skill นี้เป็นเช็กลิสต์ ไม่ใช่กฎตายตัว
+- ฟุตเทจแนว ASMR / ดูแล้วฟิน: ผลการศึกษาไม่ตรงกัน แต่มักได้ผลดีกว่ากับสินค้าราคาถูกที่คนไม่ต้องคิดนานก่อนซื้อ
 
-## Things nobody has verified
-- Whether coin-task viewing counts toward the public view counter.
-- Whether the public counter counts effective views (more than 3 s) or every play.
-- The actual ranking factors of the For You feed.
-- Whether "buy 1 get 1"-style promotions lift views or only lift orders.
+## เรื่องที่ยังไม่มีใครยืนยัน
+- วิวจากภารกิจ coins ถูกนับรวมในยอดวิวที่แสดงต่อสาธารณะหรือไม่
+- ยอดวิวสาธารณะนับเฉพาะ effective views (ดูเกิน 3 วิ) หรือนับทุกครั้งที่เล่น
+- ปัจจัยที่ใช้จัดอันดับหน้า For You จริงๆ
+- โปรแบบ "ซื้อ 1 แถม 1" ช่วยเพิ่มยอดวิว หรือแค่ช่วยเพิ่มออเดอร์
