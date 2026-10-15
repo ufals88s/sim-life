@@ -222,6 +222,7 @@ def render_clip(src, dst, frames, cfg):
     run(["ffmpeg", "-v", "error", "-y", "-ss", f"{start:.3f}", "-i", src, "-an", "-filter_complex", vf,
          "-frames:v", str(frames), "-c:v", "libx264", "-preset", "veryfast", "-crf", "17", "-r", str(fps)]
         + BT709 + [dst])
+    return src_dur
 
 
 def split_frames(total, weights):
@@ -444,16 +445,23 @@ def main():
                 render_still(src, seg, fr, scfg, tmp, len(seg_files))
                 kind = "image"
             else:
-                render_clip(src, seg, fr, scfg)
+                src_dur = render_clip(src, seg, fr, scfg)
                 kind = "video"
             got = count_frames(seg)
             if got != fr:
                 raise SystemExit(f"shot {shot['src']} (beat {i + 1}): rendered {got} frames, expected {fr}")
             seg_files.append(seg)
-            shot_log.append({"beat": timeline[i]["beat"], "src": shot["src"], "kind": kind,
-                             "start": round(frame_cursor / fps, 3), "end": round((frame_cursor + fr) / fps, 3),
-                             "motion": shot.get("motion"), "ai": bool(shot.get("ai", False)),
-                             "in_use": bool(shot.get("in_use", kind == "video"))})
+            entry = {"beat": timeline[i]["beat"], "src": shot["src"], "kind": kind,
+                     "setup": str(shot.get("setup") or shot["src"]),
+                     "start": round(frame_cursor / fps, 3), "end": round((frame_cursor + fr) / fps, 3),
+                     "motion": shot.get("motion"), "ai": bool(shot.get("ai", False)),
+                     "in_use": bool(shot.get("in_use", kind == "video"))}
+            if kind == "video":  # which part of the source file is on screen, for the reuse check in qa_check
+                src_in = float(shot.get("start", 0.0))
+                entry["src_in"] = round(src_in, 3)
+                src_out = src_in + fr / fps * float(shot.get("speed", 1.0))
+                entry["src_out"] = round(min(src_out, src_dur) if src_dur else src_out, 3)
+            shot_log.append(entry)
             frame_cursor += fr
 
     concat_list = os.path.join(tmp, "concat.txt")
