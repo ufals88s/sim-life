@@ -20,7 +20,8 @@ def ff(args):
 
 
 def probe(path):
-    r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "stream=codec_type,width,height:format=duration",
+    r = subprocess.run(["ffprobe", "-v", "error", "-show_entries",
+                        "stream=codec_type,width,height,avg_frame_rate:format=duration",
                         "-of", "json", path], capture_output=True, text=True)
     return json.loads(r.stdout)
 
@@ -49,6 +50,8 @@ def main():
     dur = float(info["format"]["duration"])
     vstreams = [s for s in info["streams"] if s["codec_type"] == "video"]
     w, h = (vstreams[0]["width"], vstreams[0]["height"]) if vstreams else (0, 0)
+    num, _, den = (vstreams[0].get("avg_frame_rate", "0/1") if vstreams else "0/1").partition("/")
+    fps = float(num) / float(den) if float(den or 0) else 0.0
     shots, beats = tl["shots"], tl["beats"]
     rows = []
 
@@ -56,7 +59,7 @@ def main():
         rows.append({"code": code, "rule": rule, "status": status, "detail": detail})
 
     first = shots[0]
-    if first["kind"] == "video" and first.get("in_use", True):
+    if first["kind"] == "video" and first.get("in_use", True):  # a static AI opening still needs a visual check
         add("A1", "เฟรมแรกคือสินค้ากำลังใช้งาน", "pass", f"ช็อตแรกเป็นวิดีโอ ({first['src']})"
             + (" ที่สร้างด้วย AI: ต้องติดป้าย AI ตอนโพสต์" if first.get("ai") else ""))
     elif first["kind"] == "video":
@@ -74,7 +77,8 @@ def main():
     add("A3", "เริ่มพูดภายใน 0.3 วิ", "pass" if fs <= 0.3 else "fail", f"คำแรกที่ {fs:.2f} วิ")
 
     win = tl.get("headline_windows") or []
-    if win and win[0][0] <= 0.05 and win[0][1] - win[0][0] >= 3.0:
+    has_text = any(str(x).strip() for x in tl.get("headline_lines", []))
+    if has_text and win and win[0][0] <= 0.05 and win[0][1] - win[0][0] >= 3.0:
         add("A4", "ข้อความหัวคลิปตั้งแต่เฟรมแรก ค้าง ≥3 วิ", "pass",
             f"ขึ้นจอ {win[0][0]:.1f}–{win[0][1]:.1f} วิ: {' / '.join(tl.get('headline_lines', []))}")
     else:
@@ -101,19 +105,31 @@ def main():
         st = "fail"
     add("A7", "ยาว 15–60 วิ (แนะนำ 20–45)", st, f"{dur:.1f} วิ, ขนาด {w}x{h}" + ("" if (w, h) == (1080, 1920) else " (ควรเป็น 1080x1920)"))
 
-    chars = sum(len(b["text"].replace(" ", "")) for b in beats)
-    talk = sum(b["speech_end"] - b["speech_start"] for b in beats)
+    voiced = [b for b in beats if b["text"].strip()]  # beats without text cannot be measured
+    chars = sum(len(re.sub(r"\s", "", b["text"])) for b in voiced)
+    talk = sum(b["speech_end"] - b["speech_start"] for b in voiced)
     cps = chars / talk if talk else 0
     add("rate", "ความเร็วพูด 16–19 ตัวอักษร/วิ", "pass" if 16 <= cps <= 19.5 else "warn",
         f"{cps:.1f} ตัวอักษร/วิ (tempo {tl.get('tempo')})" if chars else "ไม่มีข้อความใน plan จึงวัดไม่ได้")
 
+    planned = shots[-1]["end"]
+    ok_sync = dur + 0.05 >= speech_end and abs(dur - planned) <= 0.1
+    ok_fmt = (w, h) == (1080, 1920) and abs(fps - 30) < 0.01
+    add("sync", "วิดีโอครบตามแผน / 1080x1920 30fps", "fail" if not ok_sync else ("pass" if ok_fmt else "warn"),
+        f"ยาว {dur:.2f} วิ (ตามแผน {planned:.2f}), เสียงพูดจบที่ {speech_end:.2f} วิ, {w}x{h} @ {fps:.2f} fps"
+        + ("" if ok_sync else " (คลิปสั้นกว่าเสียงพากย์: เสียงท้ายคลิปถูกตัด)"))
+
     lu = loudness(a.video)
     add("loud", "ความดังราว −14 LUFS", "pass" if lu is not None and -16 <= lu <= -12 else "warn", f"{lu} LUFS")
 
-    if any(s.get("ai") for s in shots):
-        add("label", "ติดป้ายเนื้อหา AI", "warn", "มีช็อตที่สร้างด้วย AI: ต้องเปิดป้าย AI ตอนโพสต์ตามกฎ Shopee")
+    ai_video = any(s.get("ai") for s in shots)
+    add("label", "ติดป้ายเนื้อหา AI", "warn",
+        "เสียงพากย์สร้างด้วย ElevenLabs" + (" และมีช็อตวิดีโอ/ภาพ AI" if ai_video else "")
+        + ": ต้องเปิดป้าย AI ตอนโพสต์ตามกฎ Shopee")
+    add("A8", "ทุกคำกล่าวอ้างจริง + ชื่อหมวดก่อน 12 วิ + สินค้าเดียว", "manual",
+        "สคริปต์นี้วัดจากไฟล์ไม่ได้: ตรวจสคริปต์เองว่าทุกข้อมีป้ายที่มา ([ภาพ]/[ผู้ใช้]/[หน้าร้าน]/[เว็บ])")
 
-    icon = {"pass": "✅", "warn": "⚠️", "fail": "❌"}
+    icon = {"pass": "✅", "warn": "⚠️", "fail": "❌", "manual": "👀"}
     print("| ข้อ | เกณฑ์ | ผล | รายละเอียด |\n|---|---|---|---|")
     for r in rows:
         print(f"| {r['code']} | {r['rule']} | {icon[r['status']]} | {r['detail']} |")

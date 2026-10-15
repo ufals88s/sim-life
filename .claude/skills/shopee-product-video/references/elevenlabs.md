@@ -1,19 +1,32 @@
-# ElevenLabs: เสียงพากย์ไทยและวิดีโอ AI (เรียกผ่าน MCP)
+# ElevenLabs: เสียงพากย์ไทย ภาพฉาก และวิดีโอ AI (เรียกผ่าน MCP)
 
-ทดสอบจริงเมื่อ 15 ต.ค. 2026 เครื่องมือทั้งหมดเป็น deferred tool ต้องโหลดก่อนเรียก
+ทดสอบจริงเมื่อ 15 ต.ค. 2026 เครื่องมือเป็น deferred tool ต้องโหลดก่อนเรียก (ToolSearch ต้องใช้ชื่อเต็ม)
 
 ```
 ToolSearch "select:mcp__ElevenLabs__creative_create_flow,mcp__ElevenLabs__creative_list_voices,mcp__ElevenLabs__creative_generate_speech,mcp__ElevenLabs__creative_get_flow_run_status"
 ```
 
-ถ้าจะทำวิดีโอ AI ให้โหลดเครื่องมือเหล่านี้เพิ่ม
-- `creative_create_asset_upload`, `creative_finalize_asset_upload`
-- `creative_add_flow_node`, `creative_get_model_schema`
-- `creative_run_flow_nodes`, `creative_update_node`
+ถ้าจะทำภาพหรือวิดีโอ AI ให้โหลดเพิ่ม
 
-ทุกการสร้างเสียงหรือวิดีโอ **ใช้เครดิตของผู้ใช้**
+```
+ToolSearch "select:mcp__ElevenLabs__creative_create_asset_upload,mcp__ElevenLabs__creative_finalize_asset_upload,mcp__ElevenLabs__creative_add_flow_node,mcp__ElevenLabs__creative_get_model_schema,mcp__ElevenLabs__creative_run_flow_nodes,mcp__ElevenLabs__creative_update_node,mcp__ElevenLabs__creative_add_flow_asset_node"
+```
+
+ทุกการสร้างเสียง ภาพ หรือวิดีโอ **ใช้เครดิตของผู้ใช้**
 - ห้ามเรียกซ้ำเพื่อ "ลองใหม่" เพราะจะเสียเครดิตอีกรอบ
-- ถ้าผลออกมาไม่ดี ให้ถามผู้ใช้ก่อนสร้างใหม่
+- ถ้าผลไม่ดี ให้ถามผู้ใช้ก่อนสร้างใหม่
+
+## ราคาที่วัดได้จริง (15 ต.ค. 2026 ราคาอาจเปลี่ยน ให้ใช้ estimate_only ก่อนงานที่แพง)
+
+| งาน | เครดิตโดยประมาณ |
+|---|---|
+| เสียงพากย์ `eleven_v4` | ~1.1 ต่อตัวอักษร (ไม่นับเว้นวรรค) สคริปต์ 30 วิ (~500 ตัว) ≈ 550 |
+| ภาพฉาก `bytedance-seedream-5-lite` 1 ใบ | ~210 |
+| วิดีโอ 5 วิ 9:16 `kling-2.5-turbo` | ~2,100 (ถูกสุด ค่าเริ่มต้น) |
+| วิดีโอ 5 วิ 9:16 720p `bytedance-seedance-v2-mini` | ~4,600 |
+| วิดีโอ 5 วิ 9:16 720p `bytedance-seedance-v2.5` | ~14,000 |
+
+ตอนแจ้งราคา ให้บอกเป็นเครดิตตามผลประเมิน ถ้าผลประเมินมี `price_cents` ให้บอกเป็นเงินด้วย อย่าแปลงเครดิตเป็นเงินเอง เพราะราคาต่อเครดิตขึ้นกับแพ็กเกจของผู้ใช้
 
 ## 0) สร้าง flow เดียวต่อ 1 คลิป
 
@@ -21,7 +34,7 @@ ToolSearch "select:mcp__ElevenLabs__creative_create_flow,mcp__ElevenLabs__creati
 creative_create_flow(name="<สินค้า> – Shopee video", context="...")
 ```
 
-เก็บ `flow_id` ไว้ใช้กับทุกการเรียกหลังจากนี้ ผู้ใช้จะเปิดดูทุกเทคได้ใน canvas เดียว
+เก็บ `flow_id` ไว้ใช้กับทุกการเรียกหลังจากนี้ ผู้ใช้จะเปิดดูทุกชิ้นได้ใน canvas เดียว
 
 ## 1) เลือกเสียง
 
@@ -30,15 +43,14 @@ creative_list_voices(languages=["th"], context="...")
 ```
 
 - ห้ามใช้ voice_id จากความจำ ต้องเลือกจากผลที่ได้ทุกครั้ง
+- ผลอาจมีเสียงซ้ำ voice_id เดียวกัน ให้นับเป็นเสียงเดียว
 - ลำดับการเลือก
-  1. เสียงที่ผู้ใช้ระบุ
-  2. เสียง category `cloned` ถ้าผู้ใช้บอกว่าเป็นเสียงตัวเอง
-     - ถามก่อน 1 ครั้งถ้ายังไม่รู้ว่าเป็นเสียงใคร
-     - ข้อดี: เป็นตัวตนของครีเอเตอร์เอง
-  3. เสียงไทยแนว Social Media / Conversational
+  1. **ผู้ใช้บอกชื่อเสียง** → ใช้เสียงนั้น
+  2. **ผู้ใช้บอกแค่ลักษณะ** (เช่น "ผู้หญิงสดใส") → เลือกเสียงไทยแนว Social Media หรือ Conversational ที่ตรงที่สุด
      - ตอนทดสอบมีเสียงหญิง "Malee – Cheerful, Bright, Lively" และ "Nueng – Cheerful, Bright, Friendly"
      - และเสียงชาย "Chai – Upbeat, Playful, Punchy" และ "Ekkarat – Relaxed, Cheerful, Casual"
-     - ให้ค้นด้วยชื่อหรือคำอธิบายนี้ใน list ใหม่ทุกครั้ง
+     - ให้ค้นจากชื่อหรือคำอธิบายใน list ใหม่ทุกครั้ง
+  3. **มีเสียง category `cloned`** → ไม่ต้องหยุดถาม ทำงานต่อด้วยเสียงข้อ 2 แล้วบอกตอนส่งงานว่า "ถ้าเสียงโคลน <ชื่อ> เป็นเสียงของคุณ บอกได้ จะพากย์ใหม่ด้วยเสียงนั้น"
 - เสียงแนว Narration หรือ Advertisement จะช้าและเป็นทางการเกินไปสำหรับคลิปป้ายยา
 
 ## 2) สร้างเสียง 1 beat ต่อ 1 ครั้ง
@@ -50,22 +62,19 @@ creative_generate_speech(
 ```
 
 - **โมเดล**: `eleven_v4` (หรือ `eleven_v3`)
-  - `eleven_multilingual_v2`, `flash`, `turbo` ไม่รองรับภาษาไทยเต็มรูปแบบและไม่มีแท็กอารมณ์
+  - `eleven_multilingual_v2`, `eleven_flash_v2_5`, `eleven_turbo_v2_5` ไม่รองรับภาษาไทยเต็มรูปแบบและไม่มีแท็กอารมณ์
 - **แท็กอารมณ์**: ใส่ไม่บ่อย
   - `[excited]` ที่ beat แรก, `[warmly]` ที่ beat สุดท้าย
-  - แท็กมีผลไปจนกว่าจะเจอแท็กใหม่
+  - แท็กมีผลจนกว่าจะเจอแท็กใหม่
   - `build_video.py` ตัดแท็กออกก่อนนับตัวอักษรและก่อนเขียนไฟล์ซับให้เอง
-- **ตัวเลข**: เขียนเป็นตัวเลขปกติได้เลย เช่น "470 ml" "3 ชั้น" v4 อ่านเองได้
-- **คำอังกฤษ**: เช่น "ทูอินวัน" ให้เขียนเป็นภาษาไทย จะอ่านเป็นธรรมชาติกว่า "2 in 1"
-- **generations_count=1 ต่อ beat**: ประหยัดเครดิตเป็น 4 เท่าเมื่อเทียบกับค่าเริ่มต้น 4 เทค
-  - ถ้าผู้ใช้อยากได้หลายเทคให้เลือก ให้ส่ง 4 เฉพาะ beat แรก (hook)
-- **ส่ง beat ทุก beat ใน flow เดียวกัน** เรียกต่อกันได้เลยโดยไม่ต้องรอ
+- **ตัวเลข**: เขียนเป็นตัวเลขได้ เช่น "470 ml" "3 ชั้น" v4 อ่านเองได้
+- **คำอังกฤษ**: เขียนเป็นภาษาไทย เช่น "ทูอินวัน" จะอ่านเป็นธรรมชาติกว่า "2 in 1"
+- **generations_count**: ค่าเริ่มต้นของเครื่องมือคือ 4 เทค และ ElevenLabs แนะนำให้คงไว้ เว้นแต่ผู้ใช้ขอจำนวนเอง
+  - skill นี้ใช้ 1 เทคต่อ beat เพื่อใช้เครดิตแค่ 1 ใน 4 จึง**ต้องบอกผู้ใช้ในแผนขั้น 4** ว่า "จะสร้างเสียง 1 เทคต่อประโยค (~550 เครดิต) ถ้าอยากได้ 4 เทคไว้เลือก (~2,200 เครดิต) บอกได้"
+  - ถ้าสร้างหลายเทค ให้ส่งลิงก์ flow ให้ผู้ใช้ฟังแล้วเลือก ถ้าผู้ใช้ไม่เลือก ให้ใช้ `generations[]` ตัวแรก แล้วดาวน์โหลดเฉพาะเทคนั้น
+- **ส่งทุก beat ใน flow เดียวกัน** เรียกต่อกันได้เลยโดยไม่ต้องรอ
 
-**ราคาที่วัดได้**: ~1.2 เครดิตต่อตัวอักษร
-- ประโยค 76 ตัวอักษร = 90 เครดิต
-- สคริปต์ 30 วิ (ราว 550 ตัวอักษร) ≈ 650 เครดิต
-
-**ความเร็วพูด**: เสียง v4 พูดไทยราว 12–14 ตัวอักษรต่อวินาที ช้ากว่าคลิปต้นแบบ (17–19) จึงต้องให้ `build_video.py` เร่งเองด้วย `tempo: "auto"`
+**ความเร็วพูด**: v4 พูดไทยราว 12–14 ตัวอักษร/วิ ช้ากว่าคลิปต้นแบบ (17–19) `build_video.py` จะเร่งเองด้วย `tempo: "auto"` (สูงสุด 1.45 เท่า)
 
 ## 3) รอผลและดาวน์โหลด
 
@@ -73,64 +82,90 @@ creative_generate_speech(
 creative_get_flow_run_status(flow_id, session_ids=[...])
 ```
 
-- เรียกซ้ำโดยเว้นช่วงตามค่า `poll_after_seconds` (ปกติ 3 วิ) จนได้ `all_completed: true`
-- ลิงก์ไฟล์เต็มอยู่ที่ `media[].master_url` หรือ `generations[].content_url` เป็นลิงก์ storage.googleapis.com ที่ **หมดอายุใน 2 ชั่วโมง**
-  - สำหรับภาพ `media[].url` เป็นแค่ภาพตัวอย่าง webp ขนาดเล็ก ต้องใช้ `master_url` เสมอ
-  - สำหรับเสียง `url` กับ `master_url` เป็นไฟล์เดียวกัน
+- เรียกซ้ำโดยเว้นช่วงตามค่า `poll_after_seconds` จนได้ `all_completed: true` หรือ `has_failures: true`
+  - ถ้า failure ให้บอกผู้ใช้ว่า beat หรือชิ้นไหนล้มเหลว และถามก่อนสร้างใหม่
+- **ลิงก์ไฟล์เต็มคือ `media[].master_url`** (หรือ `generations[].content_url`)
+  - สำหรับภาพและวิดีโอ `media[].url` เป็นแค่ไฟล์ตัวอย่างขนาดเล็ก (`preview_content.*`)
+  - ลิงก์อยู่บน storage.googleapis.com และ**หมดอายุใน 2 ชั่วโมง**
 
 ```bash
-curl -sS -L -o video-jobs/<job>/vo/01.mp3 "<url>"
+curl -sS -L -o video-jobs/<job>/vo/01.mp3 "<master_url>"
 ```
 
-หมายเหตุเรื่องเครือข่าย
-- ในสภาพแวดล้อมคลาวด์ที่ทดสอบ ดาวน์โหลดจาก storage.googleapis.com ได้
-- แต่ api.us.elevenlabs.io ถูกบล็อก จึงต้องใช้ลิงก์ storage เสมอ
+หมายเหตุเครือข่าย: ในสภาพแวดล้อมคลาวด์ที่ทดสอบ ดาวน์โหลดจาก storage.googleapis.com ได้ แต่ api.us.elevenlabs.io ถูกบล็อก จึงต้องใช้ลิงก์ storage เสมอ
 
-## 4) วิดีโอ AI จากภาพสินค้า (ต้องขอราคาประเมินและให้ผู้ใช้ยืนยันก่อน)
+## 4) อัปโหลดภาพเข้า flow
 
-1. **อัปโหลดภาพสินค้า**
+1. ขอที่อัปโหลด
    ```
-   creative_create_asset_upload(name, mime_type="image/jpeg", file_size=<ไบต์จริง>)
+   creative_create_asset_upload(name, mime_type="<image/jpeg | image/png | image/webp ตรงกับไฟล์จริง>", file_size=<ไบต์จริงจาก stat -c %s>)
    ```
-   ได้ `asset_id` และ `upload_url` จากนั้นอัปโหลดไฟล์ด้วยคำสั่งนี้
+   ได้ `asset_id` และ `upload_url`
+2. อัปโหลดไฟล์ โดย Content-Type ต้องตรงกับ mime_type ข้างบน และต้องได้ HTTP 200
    ```bash
-   curl -sS -X PUT -H "Content-Type: image/jpeg" --data-binary @input/product.jpg "<upload_url>"
+   curl -sS -X PUT -H "Content-Type: <mime_type>" --data-binary @<ไฟล์> "<upload_url>"
    ```
-   ต้องได้ HTTP 200
+3. วางภาพลงใน flow
    ```
    creative_finalize_asset_upload(asset_id, flow_id)
    ```
-   ได้ `node_id` ของภาพ
-2. **เช็กพารามิเตอร์ของโมเดลก่อน**: `creative_get_model_schema(node_type="video-generation", model_id=...)` เพราะแต่ละโมเดลใช้ชื่อพารามิเตอร์ต่างกัน
-3. **เพิ่ม node วิดีโอ** (ยังไม่สร้าง)
-   ```
-   creative_add_flow_node(flow_id, node_type="video-generation", model_id="kling-2.5-turbo",
-     prompt="<ดูแม่แบบข้างล่าง>", connect_from=["<node_id ภาพ>"],
-     model_parameters={"aspect_ratio": "9:16", "duration_secs": 5, "negative_prompt": "distortion, deformation, text, watermark, logo"})
-   ```
-   - ภาพจะเสียบเข้า `start_frame` ให้อัตโนมัติ
-   - ถ้าเป็น Seedance ให้ใส่ `{"aspect_ratio":"9:16","resolution":"720p","duration_secs":5,"generate_audio":false}`
-4. **ขอราคาประเมิน**: `creative_run_flow_nodes(flow_id, node_ids=[...], estimate_only=true)` แล้วแจ้งผู้ใช้ทั้งเครดิตและเงิน (USD) **รอให้ผู้ใช้ยืนยันก่อน**
-5. **สร้างจริง**: เรียก `creative_run_flow_nodes` แบบไม่ใส่ estimate_only แล้วรอผล ใช้เวลาราว 1–3 นาที จากนั้นดาวน์โหลด mp4 เข้า `media/`
-6. **ตรวจด้วยตา**: ดึงภาพ 4–6 เฟรม แล้วเช็กว่าสินค้าไม่ผิดรูป ไม่มีตัวหนังสือแปลกๆ และไม่มีมือ 6 นิ้ว ถ้าเสีย ให้บอกผู้ใช้ อย่าสร้างซ้ำเอง
+   ได้ `node_id` ของภาพ ขนาดไฟล์ที่รายงานกลับอาจต่างจากที่อัปโหลด เพราะ server แปลงไฟล์เอง ไม่ใช่ปัญหา
 
-**ราคาประเมินคลิป 5 วิ แนวตั้ง 9:16** (15 ต.ค. 2026 อาจเปลี่ยน ให้ขอราคาประเมินทุกครั้ง)
+## 5) ภาพฉากและวิดีโอ AI (ขอราคาประเมิน → ผู้ใช้ยืนยัน → สร้าง)
 
-| โมเดล | เครดิต | USD | ใช้เมื่อ |
-|---|---|---|---|
-| `kling-2.5-turbo` | ~2,100 | ~$0.39 | ค่าเริ่มต้น ถูกสุด รับแค่ start_frame |
-| `bytedance-seedance-v2-mini` (720p) | ~4,600 | ~$0.83 | ภาพสมจริงกว่า |
-| `bytedance-seedance-v2.5` (720p) | ~14,000 | ~$2.55 | งานสำคัญ การเทหรือการจับของต้องสมจริง |
+### 5.1 ภาพฉากสินค้าในบ้านจริง (แนะนำเมื่อมีแค่ภาพพื้นขาว)
 
-**แม่แบบ prompt** (เขียนเป็นภาษาอังกฤษจะได้ผลดีกว่า และ 1 คลิปให้มี 1 การกระทำ)
+ถ้าใช้ภาพพื้นขาวเป็นเฟรมเริ่ม วิดีโอจะยังเป็นพื้นขาว และวินาทีแรกนิ่งเป็นภาพสินค้า ให้สร้างภาพฉากก่อน
 
 ```
-Close-up handheld phone footage in a bright Thai home <kitchen/bedroom/vanity>: a hand <one concrete action
-with the product, e.g. presses the pump and oil sprays into a stainless wok>. Natural window light, realistic.
-Keep the product exactly as in the reference image, no deformation, no text, no logos.
+creative_add_flow_node(flow_id, node_type="image-generation", model_id="bytedance-seedream-5-lite",
+  connect_from=["<node_id ภาพสินค้า>"], model_parameters={"aspect_ratio": "9:16"},
+  prompt="Keep the product exactly as in the reference image. Place it on <a black granite kitchen counter next to
+  a stainless wok / a white vanity desk / a light wood floor> in a bright Thai home, natural window light,
+  realistic phone photo, empty space at the top third, no text, no logo, no people.")
+```
+
+ขอราคาก่อนด้วย `creative_run_flow_nodes(flow_id, node_ids=[...], generations_count=1, estimate_only=true)`
+- **ต้องใส่ `generations_count=1`** ไม่งั้นจะได้ 4 ใบและเสียเครดิต 4 เท่า
+
+ผู้ใช้ยืนยันแล้วค่อยสร้างจริง จากนั้นดาวน์โหลด `master_url` แล้วตรวจด้วยตา
+- รูปทรง สี และชิ้นส่วนของสินค้าต้องตรงกับภาพจริง ถ้าไม่ตรง **ห้ามใช้** เพราะจะเป็นการโชว์สินค้าผิดจากของจริง
+- ภาพฉากใช้เป็นช็อตนิ่งได้ (ใส่ `ai: true`) และใช้เป็นเฟรมเริ่มของวิดีโอได้
+- ถ้าสร้างหลายใบ node วิดีโอรับได้ใบเดียว ต้องปักใบที่เลือกด้วย `creative_add_flow_asset_node` (ใส่ generation_id ของใบนั้น) แล้วต่อเข้า node วิดีโอ
+
+### 5.2 วิดีโอจากภาพ
+
+1. **เฟรมเริ่มต้องเป็น 9:16**
+   - ภาพฉากจาก 5.1 เป็น 9:16 อยู่แล้ว
+   - ถ้าใช้ภาพอื่น ให้ทำด้วย `python3 <skill-dir>/scripts/build_video.py --frame input/<ภาพ> media/start_9x16.jpg` แล้วอัปโหลดตามหัวข้อ 4
+2. **เช็กพารามิเตอร์ของโมเดลก่อน**: `creative_get_model_schema(node_type="video-generation", model_id=...)`
+   - `kling-2.5-turbo` รับ `start_frame` และ `end_frame` พารามิเตอร์คือ `aspect_ratio`, `duration_secs` (5 หรือ 10), `negative_prompt`, `cfg_scale` (ค่าเริ่มต้น 0.5)
+   - Seedance รับ `reference_images` เพิ่ม และมี `resolution`, `generate_audio`
+3. **เพิ่ม node** (ยังไม่สร้าง)
+   ```
+   creative_add_flow_node(flow_id, node_type="video-generation", model_id="kling-2.5-turbo",
+     prompt="<แม่แบบข้างล่าง>", connect_from=["<node_id เฟรมเริ่ม>"],
+     model_parameters={"aspect_ratio": "9:16", "duration_secs": 5, "negative_prompt": "distortion, deformation, text, watermark, logo, extra fingers"})
+   ```
+   - ถ้าเป็น Seedance ให้ใช้ `{"aspect_ratio":"9:16","resolution":"720p","duration_secs":5,"generate_audio":false}`
+4. **ขอราคาประเมิน** ด้วย `creative_run_flow_nodes(..., estimate_only=true)` แจ้งผู้ใช้ แล้ว**รอยืนยัน**
+5. **สร้างจริง** แล้วรอผล 1–3 นาที ระหว่างรอให้ทำเสียงพากย์ไปก่อน จากนั้นดาวน์โหลด `master_url` เข้า `media/`
+6. **ตรวจด้วยตา**: ดึงภาพ 1 เฟรมต่อวินาทีแล้วดู
+   - สินค้าต้องไม่ผิดรูป และไม่มีมือหรือนิ้วผิดปกติ
+   - การกระทำต้องทำได้จริง เช่น ไม่กดนิ้วลงบนฝาครอบ
+   - หาวินาทีที่เริ่มขยับ (วินาทีแรกมักนิ่ง) แล้วใส่เป็น `start` ใน plan
+   - ถ้าใช้ไม่ได้ให้บอกผู้ใช้ อย่าสร้างซ้ำเอง
+
+**แม่แบบ prompt วิดีโอ** (เขียนภาษาอังกฤษ 1 คลิป = 1 การกระทำ)
+
+```
+Close-up handheld phone footage in a bright Thai home <kitchen/bedroom/vanity>: a hand <one concrete action that is
+physically possible from the start frame and clearly visible on camera, e.g. tilts the bottle and pours a thin golden
+stream of oil into a stainless wok>. Natural window light, realistic. Keep the product exactly as in the start frame,
+no deformation, no text, no logos.
 ```
 
 - บอกการเคลื่อนไหว อย่าบรรยายหน้าตาสินค้าซ้ำ
-- ถ้าภาพสินค้าเป็นภาพพื้นขาว (packshot) คลิปจะเริ่มจากพื้นขาว ทางเลือกคือสร้างภาพฉากในบ้านก่อนด้วย node `image-generation` (เช่น `bytedance-seedream-5-pro` พร้อมภาพอ้างอิง) แล้วใช้ภาพฉากนั้นเป็น start_frame
-  - วิธีนี้เพิ่มเครดิตภาพอีก 1 ใบ ให้ขอราคาประเมินด้วย
+- เลือกการกระทำที่ตาเห็นชัด การเทหรือการเติมเห็นชัด แต่ละอองสเปรย์แทบมองไม่เห็น
+- ถ้าเฟรมเริ่มมีฝาครอบปิดอยู่ อย่าสั่งให้กดหัวพ่น
 - ไม่ต้องให้วิดีโอมีเสียง เพราะเสียงพากย์ทำแยก
