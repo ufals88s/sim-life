@@ -1,0 +1,185 @@
+{
+ "output": "out/final.mp4",
+ "voice": {
+  "tempo": "auto"
+ },
+ "headline": {
+  "lines": [
+   "ขวดสเปรย์น้ำมัน",
+   "สเปรย์ก็ได้ เทก็ได้"
+  ],
+  "end": "auto",
+  "min_end": 3.5,
+  "repeat_in_last_beat": false
+ },
+ "beats": [
+  {
+   "name": "hook_mode1",
+   "audio": "vo/01.mp3",
+   "text": "[excited] ใครอยากใช้น้ำมันน้อยลง แค่กดสเปรย์สองสามที น้ำมันก็ออกมาเป็นละอองบางๆ แล้วค่ะ",
+   "shots": [
+    {
+     "src": "media/ai_spray.mp4",
+     "start": 2.2,
+     "dur": 1.5,
+     "ai": true,
+     "in_use": true
+    },
+    {
+     "src": "media/start_frame_9x16.jpg",
+     "fit": "cover",
+     "z": [
+      1.6,
+      2.5
+     ],
+     "fx": [
+      0.5,
+      0.5
+     ],
+     "fy": [
+      0.32,
+      0.27
+     ]
+    }
+   ]
+  },
+  {
+   "name": "mode2_pour",
+   "audio": "vo/02.mp3",
+   "text": "แต่ถ้าวันไหนอยากใช้น้ำมันเยอะ ก็แค่เปิดฝาเล็กตรงนี้ แล้วเทออกมาได้เลย",
+   "shots": [
+    {
+     "src": "media/start_frame_9x16.jpg",
+     "fit": "cover",
+     "z": [
+      1.3,
+      2.2
+     ],
+     "fx": [
+      0.45,
+      0.3
+     ],
+     "fy": [
+      0.45,
+      0.32
+     ]
+    }
+   ]
+  },
+  {
+   "name": "category",
+   "audio": "vo/03.mp3",
+   "text": "ตัวนี้เป็นขวดสเปรย์น้ำมันแบบทูอินวัน ขวดเดียวจบ สเปรย์ก็ได้ เทก็ได้ คุ้มมาก",
+   "shots": [
+    {
+     "src": "media/ai_spray.mp4",
+     "start": 1.0,
+     "dur": 1.8,
+     "ai": true,
+     "in_use": true
+    },
+    {
+     "src": "media/scene_kitchen.jpg",
+     "ai": true,
+     "motion": "push_in"
+    }
+   ]
+  },
+  {
+   "name": "clear_bottle",
+   "audio": "vo/04.mp3",
+   "text": "ตัวขวดเป็นขวดใส มองเห็นเลยว่าน้ำมันเหลือเท่าไหร่ ไม่ต้องเดา ใกล้หมดก็เติมได้ทันที",
+   "shots": [
+    {
+     "src": "media/start_frame_9x16.jpg",
+     "fit": "cover",
+     "z": [
+      1.5,
+      1.5
+     ],
+     "fx": [
+      0.5,
+      0.5
+     ],
+     "fy": [
+      0.7,
+      0.52
+     ]
+    },
+    {
+     "src": "media/scene_kitchen.jpg",
+     "ai": true,
+     "motion": "pull_out"
+    }
+   ]
+  },
+  {
+   "name": "overcap",
+   "audio": "vo/05.mp3",
+   "text": "ตรงหัวสเปรย์มีฝาครอบใสมาให้ด้วย วางไว้ในครัวก็ช่วยกันฝุ่นเข้าหัวพ่นค่ะ",
+   "shots": [
+    {
+     "src": "media/start_frame_9x16.jpg",
+     "fit": "cover",
+     "z": [
+      1.4,
+      2.4
+     ],
+     "fx": [
+      0.5,
+      0.5
+     ],
+     "fy": [
+      0.4,
+      0.29
+     ]
+    }
+   ]
+  },
+  {
+   "name": "concern_clog",
+   "audio": "vo/06.mp3",
+   "text": "ใครกลัวหัวพ่นตัน แนะนำให้ใช้น้ำมันเนื้อใสอย่างน้ำมันพืช แล้วหมั่นล้างหัวพ่น จะช่วยลดปัญหานี้ได้ค่ะ",
+   "shots": [
+    {
+     "src": "media/start_frame_9x16.jpg",
+     "fit": "cover",
+     "z": [
+      1.9,
+      2.1
+     ],
+     "fx": [
+      0.45,
+      0.55
+     ],
+     "fy": [
+      0.66,
+      0.66
+     ]
+    },
+    {
+     "src": "media/ai_spray.mp4",
+     "start": 2.0,
+     "ai": true,
+     "in_use": true,
+     "speed": 0.9
+    }
+   ]
+  },
+  {
+   "name": "cta",
+   "audio": "vo/07.mp3",
+   "text": "[warmly] ใครอยากใช้น้ำมันน้อยลงแบบนี้ แนะนำเลย พิกัดแปะไว้ให้ที่เดิม กดตะกร้าได้เลยค่ะ",
+   "shots": [
+    {
+     "src": "media/ai_spray.mp4",
+     "start": 1.0,
+     "ai": true,
+     "in_use": true,
+     "speed": 0.8
+    }
+   ]
+  }
+ ],
+ "labels": []
+}
