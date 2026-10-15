@@ -133,6 +133,24 @@ creative_add_flow_node(flow_id, node_type="image-generation", model_id="bytedanc
 - ภาพฉากใช้เป็นช็อตนิ่งได้ (ใส่ `ai: true`) และใช้เป็นเฟรมเริ่มของวิดีโอได้
 - ถ้าสร้างหลายใบ node วิดีโอรับได้ใบเดียว ต้องปักใบที่เลือกด้วย `creative_add_flow_asset_node` (ใส่ generation_id ของใบนั้น) แล้วต่อเข้า node วิดีโอ
 
+**ภาพหลายมุมจากภาพสินค้าภาพเดียว** (ใช้เมื่อมุมไม่พอ ดู `shot-list.md`)
+- สร้าง node ภาพ 1 node ต่อ 1 มุม ต่อจาก node ภาพสินค้าตัวเดิมทุกตัว ใส่ `generations_count=1` ราว 210 เครดิตต่อมุม
+- prompt แยก "สิ่งที่ต้องคงไว้" กับ "สิ่งที่เปลี่ยน" ตามคำแนะนำในคู่มือโมเดล
+  ```
+  Keep the product exactly as in the reference image: same shape, colours, cap and label layout, and do not add or
+  change any text on the product. Change only the camera and the setting: <มุมจากรายการข้างล่าง>, in a bright Thai
+  home <kitchen/bedroom/vanity>, natural window light, realistic phone photo, 9:16, no text, no logo, no faces.
+  ```
+- มุมที่ใช้ได้ ให้ขอเฉพาะมุมที่ยังเห็นด้านเดียวกับในภาพจริง เพราะด้านที่ภาพจริงไม่มี (ด้านหลัง ก้น ด้านตรงข้าม) AI จะวาดขึ้นเอง และกลายเป็นการโชว์สินค้าผิดจากของจริง
+  - `first-person view, one hand holding the product toward the camera, front label facing the camera`
+  - `high-angle three-quarter front view of the product on the <counter>`
+  - `macro close-up of the <ชิ้นส่วนที่เห็นในภาพจริง>, shallow depth of field`
+  - `wide shot of the <ห้อง> with the product on the <counter>, product filling about a quarter of the frame`
+  - `top-down view looking straight down at <ผลลัพธ์ เช่น pan with a thin film of oil>, the product standing beside it` (มุมบนให้เน้นผลลัพธ์ ไม่ใช่ด้านบนของสินค้า)
+- ตรวจทุกภาพเทียบกับภาพจริง ทั้งรูปทรง สี ฝา ฉลาก และโลโก้ Seedream เขียนตัวหนังสือเก่ง จึงอาจแก้ข้อความบนฉลากเอง ถ้าเพี้ยนห้ามใช้
+  - โมเดลแก้ภาพที่คู่มือบอกว่าคงหน้าตาสินค้าได้ดีกว่า เช่น `gemini-3.1-flash-image` ผ่าน `creative_edit_image` ยังไม่รู้ราคา ต้องขอ `estimate_only` ก่อน
+- ใช้ภาพมุมใหม่เป็น**เฟรมเริ่มของวิดีโอ** (ข้อ 5.2) ดีกว่าใช้เป็นภาพนิ่ง เพราะภาพนิ่งรวมได้ไม่เกิน 20% ของคลิป
+
 ### 5.2 วิดีโอจากภาพ
 
 1. **เฟรมเริ่มต้องเป็น 9:16**
@@ -169,3 +187,4 @@ no deformation, no text, no logos.
 - เลือกการกระทำที่ตาเห็นชัด การเทหรือการเติมเห็นชัด แต่ละอองสเปรย์แทบมองไม่เห็น
 - ถ้าเฟรมเริ่มมีฝาครอบปิดอยู่ อย่าสั่งให้กดหัวพ่น
 - ไม่ต้องให้วิดีโอมีเสียง เพราะเสียงพากย์ทำแยก
+- **ได้ 2 ระยะภาพจากคลิปเดียว** (ยังไม่ได้ทดสอบใน skill นี้): คู่มือ Kling 2.5 แนะนำให้สั่งการเคลื่อนกล้องแบบเดียว เช่น `Slow dolly-in from the wide counter view to a close-up of the <cap>, then settles.` แล้วใน plan แยกเป็น 2 ช็อตที่ `start` ต่างกัน ใส่ `"setup"` คนละชื่อ (ช่วงกว้างกับช่วงใกล้)

@@ -33,6 +33,35 @@ def silences(path, noise_db=-40, min_d=0.3):
     return list(zip(starts, ends + [None] * (len(starts) - len(ends))))
 
 
+def variety(shots, total):
+    """Camera-setup variety, measured the same way as the four 20k+ view clips.
+
+    Returns (number of setups, the most-used setup and its share of screen time, share of screen time that re-shows
+    something already shown: the same still again, even re-cropped, or an overlapping part of the same video).
+    """
+    per_setup, shown, reused = {}, {}, 0.0
+    for s in shots:
+        d = s["end"] - s["start"]
+        key = s.get("setup") or s["src"]
+        per_setup[key] = per_setup.get(key, 0.0) + d
+        seen = shown.setdefault(s["src"], [])
+        if s["kind"] == "image":
+            reused += d if seen else 0.0
+            seen.append((0.0, float("inf")))
+        elif s.get("src_in") is not None:  # timelines from older builds lack in/out points: no reuse check
+            a, b = s["src_in"], s["src_out"]
+            if b > a:
+                cover, end = 0.0, a
+                for x, y in sorted(seen):  # overlap of [a, b] with the union of what was shown before
+                    lo, hi = max(x, end), min(y, b)
+                    if hi > lo:
+                        cover, end = cover + hi - lo, hi
+                reused += d * cover / (b - a)
+            seen.append((a, b))
+    top = max(per_setup, key=per_setup.get)
+    return len(per_setup), top, per_setup[top] / max(total, 1e-6), reused / max(total, 1e-6)
+
+
 def loudness(path):
     m = re.findall(r"I:\s+(-?[0-9.]+) LUFS", ff(["-i", path, "-vn", "-af", "ebur128", "-f", "null", "-"]))
     return float(m[-1]) if m else None
@@ -96,6 +125,15 @@ def main():
     add("A6", "ฟุตเทจจริง ไม่ใช่สไลด์ภาพนิ่ง (Shopee: ภาพนิ่ง ≤20%)", status,
         f"ภาพนิ่งใน 5 วิแรก {early_stills:.1f} วิ, ภาพนิ่งทั้งคลิป {still_share * 100:.0f}%"
         + (" (ภาพนิ่งที่ใส่การเคลื่อนกล้องเยอะ เสี่ยงถูกมองว่าเป็นสไลด์ และไม่เข้า Original Creator)" if status == "warn" else ""))
+
+    n_setups, top, top_share, reused = variety(shots, dur)
+    every = dur / n_setups
+    ok = every <= 4.0 and top_share <= 0.30 and reused <= 0.15
+    add("angles", "มุมกล้องหลากหลาย (มุมใหม่ทุก ≤4 วิ, มุมเดียว ≤30%, ภาพซ้ำ ≤15%)", "pass" if ok else "warn",
+        f"{n_setups} มุม ใน {dur:.0f} วิ (มุมใหม่ทุก {every:.1f} วิ), มุมที่ใช้มากสุด {top_share * 100:.0f}% ({top}), "
+        f"ภาพที่โชว์ซ้ำ {reused * 100:.0f}%"
+        + ("" if ok else " / คลิปต้นแบบ: มุมใหม่ทุก 2.5–2.9 วิ (3 ใน 4 คลิป ช้าสุด 6.1), มุมเดียวไม่เกิน 30%, "
+           "ภาพซ้ำไม่เกิน 12% ให้เพิ่มมุมตาม references/shot-list.md"))
 
     if 20 <= dur <= 45:
         st = "pass"

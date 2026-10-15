@@ -225,6 +225,29 @@ def render_clip(src, dst, frames, cfg):
     return src_dur
 
 
+def setup_groups(paths, tmp, w=54, h=96):
+    """Map each source file to the first file that opens on a near-identical picture.
+
+    An AI clip and the still it was generated from, or two clips made from the same start frame, show the viewer the
+    same camera angle, so qa_check should count them as one setup. Needs both a matching layout (correlation) and
+    matching brightness, so two different products on white backgrounds are not merged.
+    """
+    reps, group = {}, {}
+    for k, p in enumerate(paths):
+        img = os.path.join(tmp, f"setup_{k}.png")
+        if os.path.splitext(p)[1].lower() in STILL_EXT:
+            composite_still(p, img, w, h, "auto", scale=1)
+        else:
+            run(["ffmpeg", "-v", "error", "-y", "-i", p, "-vf",
+                 f"scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h}", "-frames:v", "1", img])
+        g = np.asarray(Image.open(img).convert("L"), dtype=np.float32)
+        reps[p] = ((g - g.mean()) / (g.std() + 1e-6), g)
+        z = reps[p][0]
+        group[p] = next((group[q] for q in group
+                         if (z * reps[q][0]).mean() >= 0.92 and np.abs(g - reps[q][1]).mean() <= 15), p)
+    return group
+
+
 def split_frames(total, weights):
     """Whole frames, at least 1 each, in proportion to weights, adding up to exactly `total`."""
     spare, tw = total - len(weights), float(sum(weights))
@@ -429,6 +452,13 @@ def main():
     # 2) Shots: each beat's window (from its first frame to the next beat's speech start) is shared by its shots.
     seg_files, shot_log, beat_start_frames, frame_cursor = [], [], [], 0
     for i, beat in enumerate(beats):
+        for shot in beat.get("shots") or []:
+            if not os.path.exists(rel(shot["src"])):
+                raise SystemExit(f"beat {i + 1}: file not found: {shot['src']}")
+    srcs = list(dict.fromkeys(s["src"] for b in beats for s in b.get("shots") or []))
+    file_group = setup_groups([rel(s) for s in srcs], tmp)
+    setup_of = {s: next(t for t in srcs if rel(t) == file_group[rel(s)]) for s in srcs}
+    for i, beat in enumerate(beats):
         beat_start_frames.append(frame_cursor)
         f1 = total_frames if i + 1 == len(beats) else int(round(timeline[i + 1]["speech_start"] * fps))
         n_frames = max(f1 - frame_cursor, 1)
@@ -452,7 +482,7 @@ def main():
                 raise SystemExit(f"shot {shot['src']} (beat {i + 1}): rendered {got} frames, expected {fr}")
             seg_files.append(seg)
             entry = {"beat": timeline[i]["beat"], "src": shot["src"], "kind": kind,
-                     "setup": str(shot.get("setup") or shot["src"]),
+                     "setup": str(shot.get("setup") or setup_of[shot["src"]]),
                      "start": round(frame_cursor / fps, 3), "end": round((frame_cursor + fr) / fps, 3),
                      "motion": shot.get("motion"), "ai": bool(shot.get("ai", False)),
                      "in_use": bool(shot.get("in_use", kind == "video"))}
