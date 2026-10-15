@@ -74,7 +74,9 @@ creative_get_flow_run_status(flow_id, session_ids=[...])
 ```
 
 - เรียกซ้ำโดยเว้นช่วงตามค่า `poll_after_seconds` (ปกติ 3 วิ) จนได้ `all_completed: true`
-- ลิงก์ไฟล์อยู่ที่ `media[].url` (หรือ `generations[].content_url`) เป็นลิงก์ storage.googleapis.com ที่ **หมดอายุใน 2 ชั่วโมง**
+- ลิงก์ไฟล์เต็มอยู่ที่ `media[].master_url` หรือ `generations[].content_url` เป็นลิงก์ storage.googleapis.com ที่ **หมดอายุใน 2 ชั่วโมง**
+  - สำหรับภาพ `media[].url` เป็นแค่ภาพตัวอย่าง webp ขนาดเล็ก ต้องใช้ `master_url` เสมอ
+  - สำหรับเสียง `url` กับ `master_url` เป็นไฟล์เดียวกัน
 
 ```bash
 curl -sS -L -o video-jobs/<job>/vo/01.mp3 "<url>"
